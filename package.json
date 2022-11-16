@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.18.2",
+    "serialport": "^10.4.0",
     "vite": "^3.2.3"
   }
 }
