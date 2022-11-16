@@ -11,6 +11,9 @@
 
 const byte DATA_MAX_SIZE = 32;
 char data[DATA_MAX_SIZE];   // an array to store the received data
+//char incomingByte = 'test'; // for incoming serial data
+bool startAnimation = false;
+char startWord[DATA_MAX_SIZE] = "anim1";
 
 Adafruit_NeoPixel NeoPixel(NUM_PIXELS, PIN_NEO_PIXEL, NEO_GRB + NEO_KHZ800);
 
@@ -20,6 +23,53 @@ void setup() {
 }
 
 void loop() {
+   NeoPixel.clear();
+   NeoPixel.show();
+  // send data only when you receive data:
+  if (Serial.available() > 0) {
+    // read the incoming byte:
+    //incomingByte = Serial.read();
+    receiveData();
+    //Serial.print(data);
+
+    if (data == startWord) {
+      startAnimation = true;
+      Serial.print("I got this message ");
+    }
+}
+    if (startAnimation == true) {
+      // set all pixel colors to 'off'. It only takes effect if pixels.show() is called
+
+  // turn pixels to green one by one with delay between each pixel
+  for (int pixel = 0; pixel < NUM_PIXELS+SIZE; pixel++) { // for each pixel
+    if (pixel<NUM_PIXELS) {
+    NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 255, pixel*10 + 20)); // it only takes effect if pixels.show() is called
+    NeoPixel.show(); 
+    }// send the updated pixel colors to the NeoPixel hardware.
+    if (pixel>=SIZE) {NeoPixel.setPixelColor(pixel-SIZE, 0,0,0);
+    NeoPixel.show();
+    }
+    delay(30); // pause between each pixel
+    if (pixel== NUM_PIXELS+SIZE-1) {
+      startAnimation = false;
+      Serial.print("I am done with animation 1");
+    }
+    }
+
+  // turn off all pixels for two seconds
+  NeoPixel.clear();
+  NeoPixel.show(); // send the updated pixel colors to the NeoPixel hardware.
+  delay(2000);     // off time
+  
+    }
+
+    // say what you got:
+    Serial.print("I received: ");
+    Serial.println(data);
+  
+}
+
+void animate() {
   NeoPixel.clear(); // set all pixel colors to 'off'. It only takes effect if pixels.show() is called
 
   // turn pixels to green one by one with delay between each pixel
