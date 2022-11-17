@@ -8,9 +8,31 @@ const io = new Server(server);
 const serialPort = require("serialport").SerialPort;
 
 // set up arduino connection
-const arduinoPort = "/dev/tty.usbmodem141201";
+const arduinoPort = "/dev/tty.usbmodem142201";
 
 const arduinoSerialPort = new serialPort({ path: arduinoPort, baudRate: 9600 });
+
+const midi = require("midi");
+const input = new midi.Input();
+// Count the available input ports.
+input.getPortCount();
+
+// Get the name of a specified input port.
+input.getPortName(0);
+input.on("message", (deltaTime, message) => {
+  // The message is an array of numbers corresponding to the MIDI bytes:
+  //   [status, data1, data2]
+  // https://www.cs.cf.ac.uk/Dave/Multimedia/node158.html has some helpful
+  // information interpreting the messages.
+  console.log(`m: ${message} d: ${deltaTime}`);
+  if (message[2]!=0){
+    writeToArduino("1");
+  }
+  
+});
+// Open the first available input port.
+input.openPort(0);
+
 
 arduinoSerialPort.on("open", function () {
   console.log("Serial Port " + arduinoPort + " is opened.");
@@ -18,7 +40,7 @@ arduinoSerialPort.on("open", function () {
 
 //function to write a message to arduino
 const writeToArduino = (msg) => {
-  arduinoSerialPort.write(`${msg}\n`, (err) => {
+  arduinoSerialPort.write(msg, (err) => {
     if (err) {
       return console.log("Error on write: ", err.message);
     }
@@ -26,8 +48,7 @@ const writeToArduino = (msg) => {
   });
 };
 
-writeToArduino("anim1");
-writeToArduino("");
+writeToArduino("1");
 
 //reading the signal from the arduino
 arduinoSerialPort.on("data", (data) => {
@@ -49,3 +70,5 @@ io.on("connection", (socket) => {});
 // server.listen(PORT, () => {
 //   console.log(`Our app is running on port ${PORT}`);
 // });
+
+

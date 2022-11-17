@@ -13,6 +13,8 @@ Adafruit_NeoPixel NeoPixel(NUM_PIXELS, PIN_NEO_PIXEL, NEO_GRB + NEO_KHZ800);
 
 void setup() {
   NeoPixel.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
+  NeoPixel.clear();
+  NeoPixel.show();
 }
 
 void loop() {
