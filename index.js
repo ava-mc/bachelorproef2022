@@ -15,24 +15,26 @@ const arduinoSerialPort = new serialPort({ path: arduinoPort, baudRate: 9600 });
 const midi = require("midi");
 const input = new midi.Input();
 // Count the available input ports.
-input.getPortCount();
+//input.getPortCount();
+//console.log(input.getPortCount());
 
-// Get the name of a specified input port.
-input.getPortName(0);
-input.on("message", (deltaTime, message) => {
-  // The message is an array of numbers corresponding to the MIDI bytes:
-  //   [status, data1, data2]
-  // https://www.cs.cf.ac.uk/Dave/Multimedia/node158.html has some helpful
-  // information interpreting the messages.
-  console.log(`m: ${message} d: ${deltaTime}`);
-  if (message[2]!=0){
-    writeToArduino("1");
-  }
-  
-});
-// Open the first available input port.
-input.openPort(0);
-
+//only try to open midi port when there is at least one port available
+if (input.getPortCount()>0) {
+  // Get the name of a specified input port.
+  input.getPortName(0);
+  input.on("message", (deltaTime, message) => {
+    // The message is an array of numbers corresponding to the MIDI bytes:
+    //   [status, data1, data2]
+    // https://www.cs.cf.ac.uk/Dave/Multimedia/node158.html has some helpful
+    // information interpreting the messages.
+    console.log(`m: ${message} d: ${deltaTime}`);
+    if (message[2] != 0) {
+      writeToArduino("1");
+    }
+  });
+  // Open the first available input port.
+  input.openPort(0);
+}
 
 arduinoSerialPort.on("open", function () {
   console.log("Serial Port " + arduinoPort + " is opened.");
@@ -48,13 +50,16 @@ const writeToArduino = (msg) => {
   });
 };
 
-writeToArduino("1");
+//writeToArduino("1");
 
 //reading the signal from the arduino
 arduinoSerialPort.on("data", (data) => {
   //decode the messages
   const line = data.toString("utf8");
   console.log("got word from arduino:", data.toString("utf8"));
+  if (line==="animation-end") {
+    io.emit('ended');
+  }
 });
 
 app.use("/", express.static(__dirname + "/"));
@@ -63,12 +68,17 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
-io.on("connection", (socket) => {});
+io.on("connection", (socket) => {
+  socket.on('start', () => {
+    console.log('got message from screen');
+    writeToArduino('1');
+  })
+});
 
-// //adding the port variable so that we run on 3000 locally and on heroku given $PORT online
-// const PORT = process.env.PORT || 3000;
-// server.listen(PORT, () => {
-//   console.log(`Our app is running on port ${PORT}`);
-// });
+//adding the port variable so that we run on 3000 locally and on heroku given $PORT online
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Our app is running on port ${PORT}`);
+});
 
 

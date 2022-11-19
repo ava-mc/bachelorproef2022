@@ -92,11 +92,15 @@ void animate() {
     NeoPixel.show();
     delay(30); // pause between each pixel
     Serial.print(pixel);
+    if (pixel == NUM_PIXELS+SIZE-1) {
+      //Serial.print("I am done with animation 1");
+      delay(30);
+      Serial.print("animation-end");
+    }
   }
 
   // turn off all pixels for two seconds
   NeoPixel.clear();
-  Serial.print("I am done with animation 1");
   NeoPixel.show(); // send the updated pixel colors to the NeoPixel hardware.
   // delay(2000);     // off time
 }
