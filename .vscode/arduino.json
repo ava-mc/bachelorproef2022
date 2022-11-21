@@ -1,0 +1,5 @@
+{
+    "port": "/dev/tty.usbmodem142201",
+    "board": "arduino:avr:micro",
+    "sketch": "arduino/serial-communication/serial-communication-experiment.ino"
+}
