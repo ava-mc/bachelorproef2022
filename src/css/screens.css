@@ -6,8 +6,56 @@
     transition: all .3s ease-in-out;
 }
 
+.screen1 .example {
+    background-color: blueviolet;
+}
+
+.screen2 .example {
+    background-color: green;
+}
+
+.screen3 .example {
+    background-color: red;
+}
+
 .animate {
     background-color: blue;
     width: 10rem;
     height: 10rem;
+}
+
+.screen-selector {
+  display: flex;
+  flex-direction: column;
+  height: 30vh;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.screen-choices {
+  display: flex;
+  width: 70vw;
+  max-width: 30rem;
+  justify-content: space-between;
+}
+
+.screen-choice {
+  text-decoration: none;
+  background-color: white;
+  color: black;
+  padding: 1rem;
+}
+
+.screen-chosen {
+  background-color: grey;
+  color: white;
+  pointer-events: none;
+}
+
+.screen-current {
+  background-color: red;
+}
+
+.hidden {
+  display: none;
 }
