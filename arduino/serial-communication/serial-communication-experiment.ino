@@ -33,10 +33,21 @@ void loop() {
     //receiveData();
     //Serial.print(data);
 
-    if (incomingByte == startSign) {
+    if (incomingByte == '1') {
       // startAnimation = true;
       Serial.print("I got this message ");
       animate();
+    }
+
+    if (incomingByte == '2') {
+      // startAnimation = true;
+      Serial.print("I got this message ");
+      animate2();
+    }
+    if (incomingByte == '3') {
+      // startAnimation = true;
+      Serial.print("I got this message ");
+      animate3();
     }
 }
     // if (startAnimation == true) {
@@ -96,6 +107,68 @@ void animate() {
       //Serial.print("I am done with animation 1");
       delay(30);
       Serial.print("animation-end");
+    }
+  }
+
+  // turn off all pixels for two seconds
+  NeoPixel.clear();
+  NeoPixel.show(); // send the updated pixel colors to the NeoPixel hardware.
+  // delay(2000);     // off time
+}
+
+void animate2() {
+  NeoPixel.clear(); // set all pixel colors to 'off'. It only takes effect if pixels.show() is called
+
+  // turn pixels to green one by one with delay between each pixel
+  for (int pixel = NUM_PIXELS-1; pixel > -SIZE; pixel--) { // for each pixel
+    //NeoPixel.clear();
+    if (pixel > -1)
+    {
+      NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 255, pixel * 10 + 20)); // it only takes effect if pixels.show() is called
+
+    } // send the updated pixel colors to the NeoPixel hardware.
+    if (pixel<NUM_PIXELS-SIZE) {
+      NeoPixel.setPixelColor(pixel+SIZE, 0,0,0);
+    
+    }
+    NeoPixel.show();
+    delay(30); // pause between each pixel
+    Serial.print(pixel);
+    if (pixel == -SIZE +1) {
+      //Serial.print("I am done with animation 1");
+      delay(30);
+      Serial.print("animation2-end");
+    }
+  }
+
+  // turn off all pixels for two seconds
+  NeoPixel.clear();
+  NeoPixel.show(); // send the updated pixel colors to the NeoPixel hardware.
+  // delay(2000);     // off time
+}
+
+void animate3() {
+  NeoPixel.clear(); // set all pixel colors to 'off'. It only takes effect if pixels.show() is called
+
+  // turn pixels to green one by one with delay between each pixel
+  for (int pixel = 0; pixel < NUM_PIXELS+SIZE; pixel++) { // for each pixel
+    //NeoPixel.clear();
+    if (pixel < NUM_PIXELS)
+    {
+      NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 255, pixel * 10 + 20)); // it only takes effect if pixels.show() is called
+
+    } // send the updated pixel colors to the NeoPixel hardware.
+    if (pixel>=SIZE) {
+      NeoPixel.setPixelColor(pixel-SIZE, 0,0,0);
+    
+    }
+    NeoPixel.show();
+    delay(30); // pause between each pixel
+    Serial.print(pixel);
+    if (pixel == NUM_PIXELS+SIZE-1) {
+      //Serial.print("I am done with animation 1");
+      delay(30);
+      Serial.print("animation3-end");
     }
   }
 

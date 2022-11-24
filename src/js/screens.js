@@ -1,5 +1,7 @@
 import { socket } from "./lib.js";
 import {initScreen1} from "./screen1.js";
+import { initScreen2 } from "./screen2.js";
+import { initScreen3 } from "./screen3.js";
 
 window.addEventListener("keydown", () => {
   socket.emit("start");
@@ -63,10 +65,12 @@ socket.on('screen chosen', (chosenScreens) => {
         else if (currentScreen == 2) {
             console.log('Im screen 2');
             root.classList.add("screen2");
+            initScreen2();
         }
         else if (currentScreen == 3) {
             console.log('Im screen 3');
             root.classList.add("screen3");
+            initScreen3();
         }
     } else {
         //reset classes
