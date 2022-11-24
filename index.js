@@ -90,11 +90,68 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
+
+
+//keep track of which screens are chosen
+let chosenScreens = [];
+const screens = { 1: null, 2: null, 3: null};
+
+//function to find the correct screen by its key
+const getObjKey = (obj, value) => {
+  return Object.keys(obj).find(key => obj[key] === value);
+}
+
 io.on("connection", (socket) => {
   socket.on('start', () => {
     console.log('got message from screen');
     writeToArduino('1');
-  })
+  });
+
+  //automatically disconnect if there are officially 3 screens selected, and new screen tries to connect
+  if(chosenScreens.length == 3) {
+    socket.emit('full');
+    socket.disconnect();
+  } 
+  //if there are not yet 3 screens selected
+  else {
+    //if a screen disconnects
+    socket.on('disconnect', () => {
+      //check if this screen was selected
+      const disconnectedScreen = getObjKey(screens, socket.id);
+      if (disconnectedScreen){
+        //remove the disconnected socket from the screens object
+        screens[disconnectedScreen] = null;
+      }
+      //remove the disconnected screen from the chosen screens array
+      chosenScreens = chosenScreens.filter(screen => screen !== parseInt(disconnectedScreen));
+      //pass all screens to the client, so that we can open up that choice again for selecting screens on the disconnected screen
+      io.emit('screen disconnected', chosenScreens);
+    });
+
+    //when a screen wants to connect
+    socket.on('screen choice', (chosenScreen) => {
+      chosenScreens.push(chosenScreen);
+
+      //check if the socket that sends the screen choice has already chosen another screen
+      const previousScreen = getObjKey(screens, socket.id);
+      if (previousScreen){
+        screens[chosenScreen] = socket.id;
+        screens[previousScreen] = null;
+        chosenScreens = chosenScreens.filter(screen => screen !== parseInt(previousScreen));
+      }
+      else {
+        screens[chosenScreen] = socket.id;
+      }
+
+      //emit their chosen screen to the sender
+      socket.emit('screen choice', chosenScreen);
+      //let other clients know that a new screen choice was made and which screens ar currently already chosen and thus unavailable
+      io.emit('screen chosen', chosenScreens);
+      if (chosenScreens.length==3) {
+        startInstallation = true;
+      }
+    })
+  }
 });
 
 //adding the port variable so that we run on 3000 locally and on heroku given $PORT online
