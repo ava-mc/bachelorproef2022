@@ -7,12 +7,49 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 const serialPort = require("serialport").SerialPort;
 
-// set up arduino connection
-const arduinoPort = "/dev/tty.usbmodem142201";
+let path = "";
+let arduinoSerialPort = "";
+// check at which port the arduino is selected, to set up our serial communication
+serialPort.list().then(ports => {
+  let done = false
+  let count = 0
+  let allports = ports.length;
+  console.log(allports);
+  ports.forEach(function(port) {
+    count = count+1;
+    pm  = port.manufacturer;
 
-const arduinoSerialPort = new serialPort({ path: arduinoPort, baudRate: 9600 });
+
+    if (typeof pm !== 'undefined') {
+      if (pm.toLowerCase().includes("arduino")) path = port.path;
+      console.log(typeof path, path);
+      arduinoSerialPort = new SerialPort({ path, baudRate: 9600 });
+      arduinoSerialPort.on("open", function () {
+        console.log(`connected! arduino is now connected at port ${path}`);
+      });
+      //reading the signal from the arduino
+      if (arduinoSerialPort) {
+        arduinoSerialPort.on("data", (data) => {
+          //decode the messages
+          const line = data.toString("utf8");
+          console.log("got word from arduino:", data.toString("utf8"));
+          if (line === "animation-end") {
+            io.emit("ended");
+          }
+        });
+      }
+      done = true;
+    }
+
+    if(count === allports && done === false){
+      console.log(`can't find any arduino`)
+    }
+  })
+})
+
 
 const midi = require("midi");
+const { SerialPort } = require("serialport");
 const input = new midi.Input();
 // Count the available input ports.
 //input.getPortCount();
@@ -36,9 +73,6 @@ if (input.getPortCount()>0) {
   input.openPort(0);
 }
 
-arduinoSerialPort.on("open", function () {
-  console.log("Serial Port " + arduinoPort + " is opened.");
-});
 
 //function to write a message to arduino
 const writeToArduino = (msg) => {
@@ -49,18 +83,6 @@ const writeToArduino = (msg) => {
     console.log("message written");
   });
 };
-
-//writeToArduino("1");
-
-//reading the signal from the arduino
-arduinoSerialPort.on("data", (data) => {
-  //decode the messages
-  const line = data.toString("utf8");
-  console.log("got word from arduino:", data.toString("utf8"));
-  if (line==="animation-end") {
-    io.emit('ended');
-  }
-});
 
 app.use("/", express.static(__dirname + "/"));
 
