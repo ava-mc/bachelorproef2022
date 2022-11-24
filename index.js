@@ -36,6 +36,13 @@ serialPort.list().then(ports => {
           if (line === "animation-end") {
             io.emit("ended");
           }
+          if (line === "animation2-end") {
+            io.emit("ended2");
+          }
+          if (line === "animation3-end") {
+            console.log('done');
+            io.emit('ended3');
+          }
         });
       }
       done = true;
@@ -105,6 +112,15 @@ io.on("connection", (socket) => {
   socket.on('start', () => {
     console.log('got message from screen');
     writeToArduino('1');
+  });
+  socket.on("start2", () => {
+    console.log("got message from screen");
+    writeToArduino("2");
+  });
+
+  socket.on("start3", () => {
+    console.log("got message from screen");
+    writeToArduino("3");
   });
 
   //automatically disconnect if there are officially 3 screens selected, and new screen tries to connect

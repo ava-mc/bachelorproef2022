@@ -6,6 +6,7 @@ export const initScreen1 = () => {
       $example.classList.add("animate");
       setTimeout(() => {
         $example.classList.remove("animate");
-      }, 1000);
+        socket.emit("start2");
+      }, 500);
     });
 }
