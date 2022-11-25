@@ -14,6 +14,7 @@ char data[DATA_MAX_SIZE];   // an array to store the received data
 char incomingByte = 0; // for incoming serial data
 bool startAnimation = false;
 char startSign= '1';
+bool longPress = false;
 
 Adafruit_NeoPixel NeoPixel(NUM_PIXELS, PIN_NEO_PIXEL, NEO_GRB + NEO_KHZ800);
 
@@ -21,6 +22,7 @@ void setup() {
   NeoPixel.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
   Serial.begin(9600); // Starts the serial communication
   NeoPixel.clear();
+  NeoPixel.show();
 }
 
 void loop() {
@@ -46,7 +48,22 @@ void loop() {
       //animate3();
       animateReusable(25, "animation3-end");
     }
+    if (incomingByte == 'a') {
+      longPress = true;
+    }
+
+    if (incomingByte == 'b') {
+      longPress = false;
+      NeoPixel.clear();
+      NeoPixel.show();
+      //flicker(0, 30);
+    }
 }
+
+    if (longPress==true) {
+      Serial.print("I execute");
+      flicker(0, 30);
+    }
     // if (startAnimation == true) {
     //   startAnimation = false;
     //   // set all pixel colors to 'off'. It only takes effect if pixels.show() is called
@@ -112,6 +129,20 @@ void animateReusable(int PIXEL_NUMBER, String MESSAGE) {
   // delay(2000);     // off time
 
 }
+
+void flicker(int START, int END) {
+  NeoPixel.clear();
+    for (int pixel = START; pixel < END; pixel++)
+    {
+      NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 255, pixel * 10 + 20));
+      NeoPixel.show();
+    }
+    for (int pixel = START; pixel < END; pixel++)
+    {
+      NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 0,0));
+      NeoPixel.show();
+    }
+  }
 
 void animate() {
   NeoPixel.clear(); // set all pixel colors to 'off'. It only takes effect if pixels.show() is called
