@@ -8,9 +8,9 @@ const io = new Server(server);
 const serialPort = require("serialport").SerialPort;
 
 const animationList = [
-  { message: "1", counter: 0, timer: null },
-  { message: "2", counter: 0, timer: null },
-  { message: "3", counter: 0, timer: null },
+  { startMessage: "1", longMessage: "a", endMessage: "b", counter: 0, timer: null, ended: false },
+  { startMessage: "2", longMessage: "c", endMessage: "d", counter: 0, timer: null, ended: false },
+  { startMessage: "3", longMessage: "e", endMessage: "f", counter: 0, timer: null, ended: false },
 ];
 const currentNotes = [];
 let animationIndex = 0;
@@ -42,13 +42,17 @@ serialPort.list().then((ports) => {
           console.log("got word from arduino:", data.toString("utf8"));
           if (line === "animation-end") {
             io.emit("ended");
+            //animationList[0].ended = true;
+
           }
           if (line === "animation2-end") {
             io.emit("ended2");
+            //animationList[1].ended = true;
           }
           if (line === "animation3-end") {
             console.log("done");
             io.emit("ended3");
+            //animationList[2].ended = true;
           }
         });
       }
@@ -64,7 +68,7 @@ serialPort.list().then((ports) => {
 const midi = require("midi");
 const { SerialPort } = require("serialport");
 const input = new midi.Input();
-const timeLimit = 5;
+const timeLimit = 500;
 
 //only try to open midi port when there is at least one port available
 if (input.getPortCount() > 0) {
@@ -78,18 +82,32 @@ if (input.getPortCount() > 0) {
     console.log(message);
     console.log(`m: ${message} d: ${deltaTime}`);
     if (message[2] != 0) {
-      //writeToArduino("1");
-      currentNotes.push({note: message[1], start :message[2]});
-      console.log(currentNotes);
-      const chosenAnimation = animationList[animationIndex];
-      chosenAnimation.note = message[1];
-      writeToArduino(chosenAnimation.message);
-      chosenAnimation.timer = setInterval(()=> {
-        chosenAnimation.counter++;
-        if (chosenAnimation.counter===timeLimit) {
-          writeToArduino('a');
+
+      if (currentNotes.length > animationIndex) {
+
+      }
+      else {
+        //writeToArduino("1");
+        currentNotes.push({ note: message[1], start: message[2] });
+        console.log(currentNotes);
+        const chosenAnimation = animationList[animationIndex];
+        chosenAnimation.note = message[1];
+        writeToArduino(chosenAnimation.startMessage);
+        chosenAnimation.timer = setInterval(() => {
+          chosenAnimation.counter++;
+          if (chosenAnimation.counter === timeLimit) {
+            writeToArduino(chosenAnimation.longMessage);
+          }
+          // if (chosenAnimation.ended===true) {
+          //   writeToArduino(chosenAnimation.longMessage);
+          //   chosenAnimation.false;
+          // }
+        }, 1);
+        animationIndex++;
+        if (animationIndex > animationList.length - 1) {
+          animationIndex = 0;
         }
-      }, 1000);
+      }
     }
     else {
       //check if note was in the list
@@ -99,12 +117,16 @@ if (input.getPortCount() > 0) {
       if (selectedNote) {
         currentNotes.splice(currentNotes.indexOf(selectedNote), 1);
         console.log(currentNotes);
+        const selectedAnimation = animationList.find(
+          (item) => item.note === selectedNote.note
+        );
+        clearInterval(selectedAnimation.timer);
+        //selectedAnimation.ended = false;
+        selectedAnimation.counter = 0;
+        selectedAnimation.note = null;
+        writeToArduino(selectedAnimation.endMessage);
       }
-      const selectedAnimation = animationList.find(item => item.note === selectedNote.note);
-      clearInterval(selectedAnimation.timer);
-      selectedAnimation.counter = 0;
-      selectedAnimation.note = null;
-      writeToArduino('b');
+      
     }
   });
   // Open the first available input port.

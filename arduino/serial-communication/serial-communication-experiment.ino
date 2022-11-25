@@ -14,7 +14,9 @@ char data[DATA_MAX_SIZE];   // an array to store the received data
 char incomingByte = 0; // for incoming serial data
 bool startAnimation = false;
 char startSign= '1';
-bool longPress = false;
+bool longPress1 = false;
+bool longPress2 = false;
+bool longPress3 = false;
 
 Adafruit_NeoPixel NeoPixel(NUM_PIXELS, PIN_NEO_PIXEL, NEO_GRB + NEO_KHZ800);
 
@@ -37,32 +39,64 @@ void loop() {
 
     if (incomingByte == '1') {
       //animate();
-      animateReusable(NUM_PIXELS, "animation-end");
+      animateReusable(1, 10, "animation-end");
     }
 
     if (incomingByte == '2') {
       //animate2();
-      animateReusable(20, "animation2-end");
+      animateReusable(11, 20, "animation2-end");
     }
     if (incomingByte == '3') {
       //animate3();
-      animateReusable(25, "animation3-end");
+      animateReusable(21, 30, "animation3-end");
     }
     if (incomingByte == 'a') {
-      longPress = true;
+      longPress1 = true;
     }
 
     if (incomingByte == 'b') {
-      longPress = false;
-      NeoPixel.clear();
+      longPress1 = false;
+      //NeoPixel.clear();
+      clearPixels(1, 10);
+      NeoPixel.show();
+      //flicker(0, 30);
+    }
+    if (incomingByte == 'c') {
+      longPress2 = true;
+    }
+
+    if (incomingByte == 'd') {
+      longPress2 = false;
+      //NeoPixel.clear();
+      clearPixels(11, 20);
+      NeoPixel.show();
+      //flicker(0, 30);
+    }
+    if (incomingByte == 'e') {
+      longPress3 = true;
+    }
+
+    if (incomingByte == 'f') {
+      longPress3 = false;
+      //NeoPixel.clear();
+      clearPixels(21, 30);
       NeoPixel.show();
       //flicker(0, 30);
     }
 }
 
-    if (longPress==true) {
-      Serial.print("I execute");
-      flicker(0, 30);
+    if (longPress1==true) {
+      //Serial.print("I execute");
+      flicker(1, 10);
+    }
+    if (longPress2==true) {
+      //erial.print("I execute");
+      flicker(11, 20);
+    }
+
+    if (longPress3==true) {
+      //Serial.print("I execute");
+      flicker(21, 30);
     }
     // if (startAnimation == true) {
     //   startAnimation = false;
@@ -99,13 +133,21 @@ void loop() {
   
 }
 
-void animateReusable(int PIXEL_NUMBER, String MESSAGE) {
-  NeoPixel.clear(); // set all pixel colors to 'off'. It only takes effect if pixels.show() is called
+void clearPixels(int START, int END) {
+  for (int pixel = START; pixel < END; pixel++) {
+      NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 0,0)); 
+  }
+  NeoPixel.show();
+}
+
+void animateReusable(int START, int END, String MESSAGE) {
+  //NeoPixel.clear(); // set all pixel colors to 'off'. It only takes effect if pixels.show() is called
+  clearPixels(START, END);
 
   // turn pixels to green one by one with delay between each pixel
-  for (int pixel = 0; pixel < PIXEL_NUMBER+SIZE; pixel++) { // for each pixel
+  for (int pixel = START; pixel < END+SIZE; pixel++) { // for each pixel
     //NeoPixel.clear();
-    if (pixel < PIXEL_NUMBER)
+    if (pixel < END)
     {
       NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 255, pixel * 10 + 20)); // it only takes effect if pixels.show() is called
 
@@ -115,23 +157,23 @@ void animateReusable(int PIXEL_NUMBER, String MESSAGE) {
     
     }
     NeoPixel.show();
-    delay(30); // pause between each pixel
+    delay(10); // pause between each pixel
     Serial.print(pixel);
-    if (pixel == PIXEL_NUMBER+SIZE-1) {
+    if (pixel == END+SIZE-1) {
       delay(30);
       Serial.print(MESSAGE);
     }
   }
 
-  // turn off all pixels for two seconds
-  NeoPixel.clear();
+  //NeoPixel.clear();
+  clearPixels(START, END);
   NeoPixel.show(); // send the updated pixel colors to the NeoPixel hardware.
-  // delay(2000);     // off time
 
 }
 
 void flicker(int START, int END) {
-  NeoPixel.clear();
+  //NeoPixel.clear();
+  clearPixels(START, END);
     for (int pixel = START; pixel < END; pixel++)
     {
       NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 255, pixel * 10 + 20));
@@ -160,7 +202,7 @@ void animate() {
     
     }
     NeoPixel.show();
-    delay(30); // pause between each pixel
+    delay(10); // pause between each pixel
     Serial.print(pixel);
     if (pixel == NUM_PIXELS+SIZE-1) {
       //Serial.print("I am done with animation 1");
