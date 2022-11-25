@@ -34,20 +34,17 @@ void loop() {
     //Serial.print(data);
 
     if (incomingByte == '1') {
-      // startAnimation = true;
-      Serial.print("I got this message ");
-      animate();
+      //animate();
+      animateReusable(NUM_PIXELS, "animation-end");
     }
 
     if (incomingByte == '2') {
-      // startAnimation = true;
-      Serial.print("I got this message ");
-      animate2();
+      //animate2();
+      animateReusable(20, "animation2-end");
     }
     if (incomingByte == '3') {
-      // startAnimation = true;
-      Serial.print("I got this message ");
-      animate3();
+      //animate3();
+      animateReusable(25, "animation3-end");
     }
 }
     // if (startAnimation == true) {
@@ -83,6 +80,37 @@ void loop() {
     // }
 
   
+}
+
+void animateReusable(int PIXEL_NUMBER, String MESSAGE) {
+  NeoPixel.clear(); // set all pixel colors to 'off'. It only takes effect if pixels.show() is called
+
+  // turn pixels to green one by one with delay between each pixel
+  for (int pixel = 0; pixel < PIXEL_NUMBER+SIZE; pixel++) { // for each pixel
+    //NeoPixel.clear();
+    if (pixel < PIXEL_NUMBER)
+    {
+      NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 255, pixel * 10 + 20)); // it only takes effect if pixels.show() is called
+
+    } // send the updated pixel colors to the NeoPixel hardware.
+    if (pixel>=SIZE) {
+      NeoPixel.setPixelColor(pixel-SIZE, 0,0,0);
+    
+    }
+    NeoPixel.show();
+    delay(30); // pause between each pixel
+    Serial.print(pixel);
+    if (pixel == PIXEL_NUMBER+SIZE-1) {
+      delay(30);
+      Serial.print(MESSAGE);
+    }
+  }
+
+  // turn off all pixels for two seconds
+  NeoPixel.clear();
+  NeoPixel.show(); // send the updated pixel colors to the NeoPixel hardware.
+  // delay(2000);     // off time
+
 }
 
 void animate() {
