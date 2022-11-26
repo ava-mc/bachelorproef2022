@@ -1,15 +1,17 @@
-const express = require("express");
-const http = require("http");
-//make sure you keep this order
+import express from "express";
+import http from "http";
 const app = express();
 const server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server);
-const { SerialPort } = require("serialport");
-const serialPort = require("serialport").SerialPort;
-const midi = require("midi");
+import { Server } from "socket.io";
+export const io = new Server(server);
+import serialport from "serialport";
+const serialPort = serialport.SerialPort;
 
-//import { getRandomInt } from "./src/js/lib";
+import  * as filepath from "path";
+import { fileURLToPath } from "url";
+
+import midi from "midi";
+import { getRandomInt } from "./src/js/lib.js";
 
 const animationList = [
   {
@@ -38,11 +40,13 @@ const animationList = [
   },
 ];
 const currentNotes = [];
-//let animationIndex = 0;
 const availableAnimationIndices = [];
-for (i = 0; i < animationList.length; i++) {
+for (let i = 0; i < animationList.length; i++) {
+  console.log(i);
   availableAnimationIndices.push(i);
+  console.log(availableAnimationIndices);
 }
+const randomList = [1, 2];
 
 let path = "";
 let arduinoSerialPort = "";
@@ -51,15 +55,17 @@ serialPort.list().then((ports) => {
   let done = false;
   let count = 0;
   let allports = ports.length;
+  let pm;
   console.log(allports);
   ports.forEach(function (port) {
     count = count + 1;
     pm = port.manufacturer;
+    console.log(pm);
 
     if (typeof pm !== "undefined") {
       if (pm.toLowerCase().includes("arduino")) path = port.path;
       console.log(typeof path, path);
-      arduinoSerialPort = new SerialPort({ path, baudRate: 9600 });
+      arduinoSerialPort = new serialport.SerialPort({ path, baudRate: 9600 });
       arduinoSerialPort.on("open", function () {
         console.log(`connected! arduino is now connected at port ${path}`);
       });
@@ -93,7 +99,6 @@ serialPort.list().then((ports) => {
   });
 });
 
-
 const input = new midi.Input();
 const timeLimit = 500;
 
@@ -108,27 +113,25 @@ if (input.getPortCount() > 0) {
     // information interpreting the messages.
     console.log(message);
     console.log(`m: ${message} d: ${deltaTime}`);
+    //check that the note is started
     if (message[2] != 0) {
-      //if (currentNotes.length > animationIndex) {
-        if(availableAnimationIndices.length>0){
+      // check if there are still animations available to link to the new note
+      if (availableAnimationIndices.length === 0) {
       } else {
         currentNotes.push({ note: message[1], start: message[2] });
-        console.log(currentNotes);
 
         //get random animation
-        const animationIndex = availableAnimationIndices[getRandomInt(0, availableAnimationIndices.length - 1)];
-        console.log(animationIndex);
+        const animationIndex =
+          availableAnimationIndices[
+            getRandomInt(0, availableAnimationIndices.length - 1)
+          ];
 
         //remove the chosen animationIndex from the available indices
-        availableAnimationIndices.splice(availableAnimationIndices.indexOf(animationIndex), 1);
+        availableAnimationIndices.splice(
+          availableAnimationIndices.indexOf(animationIndex),
+          1
+        );
 
-        //check if cuurent animation index is already occupied
-        // occupiedIndex = occupiedAnimationIndices.filter(item=>item.index === animationIndex);
-        // if (occupiedIndex.length>0) {
-        //   animationIndex++;
-        // }
-
-        //const chosenAnimation = animationList[animationIndex];
         const chosenAnimation = animationList[animationIndex];
         chosenAnimation.note = message[1];
         writeToArduino(chosenAnimation.startMessage);
@@ -142,10 +145,6 @@ if (input.getPortCount() > 0) {
           //   chosenAnimation.false;
           // }
         }, 1);
-        // animationIndex++;
-        // if (animationIndex > animationList.length - 1) {
-        //   animationIndex = 0;
-        // }
       }
     } else {
       //check if note was in the list
@@ -164,13 +163,10 @@ if (input.getPortCount() > 0) {
         //selectedAnimation.ended = false;
         selectedAnimation.counter = 0;
         selectedAnimation.note = null;
-
         //add animation index back to list of available animationIndices
         const index = animationList.indexOf(selectedAnimation);
         availableAnimationIndices.push(index);
-
         writeToArduino(selectedAnimation.endMessage);
-
       }
     }
   });
@@ -187,6 +183,10 @@ const writeToArduino = (msg) => {
     console.log("message written");
   });
 };
+
+const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = filepath.dirname(__filename);
 
 app.use("/", express.static(__dirname + "/"));
 
