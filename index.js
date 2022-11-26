@@ -7,7 +7,7 @@ export const io = new Server(server);
 import serialport from "serialport";
 const serialPort = serialport.SerialPort;
 
-import  * as filepath from "path";
+import * as filepath from "path";
 import { fileURLToPath } from "url";
 
 import midi from "midi";
@@ -46,6 +46,8 @@ for (let i = 0; i < animationList.length; i++) {
   availableAnimationIndices.push(i);
   console.log(availableAnimationIndices);
 }
+
+const midiType = 144;
 
 let path = "";
 let arduinoSerialPort = "";
@@ -112,60 +114,64 @@ if (input.getPortCount() > 0) {
     // information interpreting the messages.
     console.log(message);
     console.log(`m: ${message} d: ${deltaTime}`);
-    //check that the note is started
-    if (message[2] != 0) {
-      // check if there are still animations available to link to the new note
-      if (availableAnimationIndices.length === 0) {
+    //check the type of midi input, we only read note values
+    if (message[0] == midiType) {
+      console.log(midiType, message[0]);
+      //check that the note is started
+      if (message[2] != 0) {
+        // check if there are still animations available to link to the new note
+        if (availableAnimationIndices.length === 0) {
+        } else {
+          currentNotes.push({ note: message[1], start: message[2] });
+
+          //get random animation
+          const animationIndex =
+            availableAnimationIndices[
+              getRandomInt(0, availableAnimationIndices.length - 1)
+            ];
+
+          //remove the chosen animationIndex from the available indices
+          availableAnimationIndices.splice(
+            availableAnimationIndices.indexOf(animationIndex),
+            1
+          );
+
+          const chosenAnimation = animationList[animationIndex];
+          chosenAnimation.note = message[1];
+          writeToArduino(chosenAnimation.startMessage);
+          chosenAnimation.timer = setInterval(() => {
+            // chosenAnimation.counter++;
+            // if (chosenAnimation.counter === timeLimit) {
+            //   writeToArduino(chosenAnimation.longMessage);
+            // }
+            if (chosenAnimation.ended === true) {
+              writeToArduino(chosenAnimation.longMessage);
+              chosenAnimation.ended = false;
+            }
+          }, 100);
+        }
       } else {
-        currentNotes.push({ note: message[1], start: message[2] });
-
-        //get random animation
-        const animationIndex =
-          availableAnimationIndices[
-            getRandomInt(0, availableAnimationIndices.length - 1)
-          ];
-
-        //remove the chosen animationIndex from the available indices
-        availableAnimationIndices.splice(
-          availableAnimationIndices.indexOf(animationIndex),
-          1
-        );
-
-        const chosenAnimation = animationList[animationIndex];
-        chosenAnimation.note = message[1];
-        writeToArduino(chosenAnimation.startMessage);
-        chosenAnimation.timer = setInterval(() => {
-          // chosenAnimation.counter++;
-          // if (chosenAnimation.counter === timeLimit) {
-          //   writeToArduino(chosenAnimation.longMessage);
-          // }
-          if (chosenAnimation.ended===true) {
-            writeToArduino(chosenAnimation.longMessage);
-            chosenAnimation.ended = false;
-          }
-        }, 100);
-      }
-    } else {
-      //check if note was in the list
-      console.log(currentNotes);
-      const selectedNote = currentNotes.find(
-        (item) => item.note === message[1]
-      );
-      console.log(selectedNote);
-      if (selectedNote) {
-        currentNotes.splice(currentNotes.indexOf(selectedNote), 1);
+        //check if note was in the list
         console.log(currentNotes);
-        const selectedAnimation = animationList.find(
-          (item) => item.note === selectedNote.note
+        const selectedNote = currentNotes.find(
+          (item) => item.note === message[1]
         );
-        selectedAnimation.ended = false;
-        clearInterval(selectedAnimation.timer);
-        selectedAnimation.counter = 0;
-        selectedAnimation.note = null;
-        //add animation index back to list of available animationIndices
-        const index = animationList.indexOf(selectedAnimation);
-        availableAnimationIndices.push(index);
-        writeToArduino(selectedAnimation.endMessage);
+        console.log(selectedNote);
+        if (selectedNote) {
+          currentNotes.splice(currentNotes.indexOf(selectedNote), 1);
+          console.log(currentNotes);
+          const selectedAnimation = animationList.find(
+            (item) => item.note === selectedNote.note
+          );
+          selectedAnimation.ended = false;
+          clearInterval(selectedAnimation.timer);
+          selectedAnimation.counter = 0;
+          selectedAnimation.note = null;
+          //add animation index back to list of available animationIndices
+          const index = animationList.indexOf(selectedAnimation);
+          availableAnimationIndices.push(index);
+          writeToArduino(selectedAnimation.endMessage);
+        }
       }
     }
   });
