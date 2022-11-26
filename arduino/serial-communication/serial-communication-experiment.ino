@@ -39,16 +39,16 @@ void loop() {
 
     if (incomingByte == '1') {
       //animate();
-      animateReusable(1, 10, "animation-end");
+      animateReusable(0, 9, "animation-end", 0, 0, 100);
     }
 
     if (incomingByte == '2') {
       //animate2();
-      animateReusable(11, 20, "animation2-end");
+      animateReusable(10, 19, "animation2-end", 255, 0, 0);
     }
     if (incomingByte == '3') {
       //animate3();
-      animateReusable(21, 30, "animation3-end");
+      animateReusable(20, 29, "animation3-end", 100, 255, 0);
     }
     if (incomingByte == 'a') {
       longPress1 = true;
@@ -57,7 +57,7 @@ void loop() {
     if (incomingByte == 'b') {
       longPress1 = false;
       //NeoPixel.clear();
-      clearPixels(1, 10);
+      clearPixels(0, 9);
       NeoPixel.show();
       //flicker(0, 30);
     }
@@ -68,7 +68,7 @@ void loop() {
     if (incomingByte == 'd') {
       longPress2 = false;
       //NeoPixel.clear();
-      clearPixels(11, 20);
+      clearPixels(10, 19);
       NeoPixel.show();
       //flicker(0, 30);
     }
@@ -79,7 +79,7 @@ void loop() {
     if (incomingByte == 'f') {
       longPress3 = false;
       //NeoPixel.clear();
-      clearPixels(21, 30);
+      clearPixels(20, 29);
       NeoPixel.show();
       //flicker(0, 30);
     }
@@ -87,16 +87,16 @@ void loop() {
 
     if (longPress1==true) {
       //Serial.print("I execute");
-      flicker(1, 10);
+      flicker(0, 9, 0, 0, 100);
     }
     if (longPress2==true) {
       //erial.print("I execute");
-      flicker(11, 20);
+      flicker(10, 19, 255, 0, 0);
     }
 
     if (longPress3==true) {
       //Serial.print("I execute");
-      flicker(21, 30);
+      flicker(20, 29, 100, 255, 0);
     }
     // if (startAnimation == true) {
     //   startAnimation = false;
@@ -134,22 +134,22 @@ void loop() {
 }
 
 void clearPixels(int START, int END) {
-  for (int pixel = START; pixel < END; pixel++) {
+  for (int pixel = START; pixel <= END; pixel++) {
       NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 0,0)); 
   }
   NeoPixel.show();
 }
 
-void animateReusable(int START, int END, String MESSAGE) {
+void animateReusable(int START, int END, String MESSAGE, int R, int G, int B) {
   //NeoPixel.clear(); // set all pixel colors to 'off'. It only takes effect if pixels.show() is called
   clearPixels(START, END);
 
   // turn pixels to green one by one with delay between each pixel
   for (int pixel = START; pixel < END+SIZE; pixel++) { // for each pixel
     //NeoPixel.clear();
-    if (pixel < END)
+    if (pixel <= END)
     {
-      NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 255, pixel * 10 + 20)); // it only takes effect if pixels.show() is called
+      NeoPixel.setPixelColor(pixel, NeoPixel.Color(R, G, B + pixel * 10 + 20)); // it only takes effect if pixels.show() is called
 
     } // send the updated pixel colors to the NeoPixel hardware.
     if (pixel>=SIZE) {
@@ -157,7 +157,7 @@ void animateReusable(int START, int END, String MESSAGE) {
     
     }
     NeoPixel.show();
-    delay(20); // pause between each pixel
+    delay(10); // pause between each pixel
     Serial.print(pixel);
     if (pixel == END+SIZE-1) {
       delay(30);
@@ -171,21 +171,21 @@ void animateReusable(int START, int END, String MESSAGE) {
 
 }
 
-void flicker(int START, int END) {
+void flicker(int START, int END, int R, int G, int B) {
   //NeoPixel.clear();
   clearPixels(START, END);
-    for (int pixel = START; pixel < END; pixel++)
+    for (int pixel = START; pixel <= END; pixel++)
     {
-      NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 255, pixel * 10 + 20));
+      NeoPixel.setPixelColor(pixel, NeoPixel.Color(R, G, B + pixel * 10 + 20));
       NeoPixel.show();
     }
-    delay(20);
-    for (int pixel = START; pixel < END; pixel++)
+    delay(10);
+    for (int pixel = START; pixel <= END; pixel++)
     {
       NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 0,0));
       NeoPixel.show();
     }
-    delay(20);
+    delay(10);
 }
 
 void animate() {
