@@ -157,7 +157,7 @@ void animateReusable(int START, int END, String MESSAGE) {
     
     }
     NeoPixel.show();
-    delay(10); // pause between each pixel
+    delay(20); // pause between each pixel
     Serial.print(pixel);
     if (pixel == END+SIZE-1) {
       delay(30);
@@ -266,7 +266,7 @@ void animate3() {
     
     }
     NeoPixel.show();
-    delay(30); // pause between each pixel
+    delay(10); // pause between each pixel
     Serial.print(pixel);
     if (pixel == NUM_PIXELS+SIZE-1) {
       //Serial.print("I am done with animation 1");
