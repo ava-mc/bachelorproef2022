@@ -179,12 +179,14 @@ void flicker(int START, int END) {
       NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 255, pixel * 10 + 20));
       NeoPixel.show();
     }
+    delay(20);
     for (int pixel = START; pixel < END; pixel++)
     {
       NeoPixel.setPixelColor(pixel, NeoPixel.Color(0, 0,0));
       NeoPixel.show();
     }
-  }
+    delay(20);
+}
 
 void animate() {
   NeoPixel.clear(); // set all pixel colors to 'off'. It only takes effect if pixels.show() is called
