@@ -46,7 +46,6 @@ for (let i = 0; i < animationList.length; i++) {
   availableAnimationIndices.push(i);
   console.log(availableAnimationIndices);
 }
-const randomList = [1, 2];
 
 let path = "";
 let arduinoSerialPort = "";
@@ -77,16 +76,16 @@ serialPort.list().then((ports) => {
           console.log("got word from arduino:", data.toString("utf8"));
           if (line === "animation-end") {
             io.emit("ended");
-            //animationList[0].ended = true;
+            animationList[0].ended = true;
           }
           if (line === "animation2-end") {
             io.emit("ended2");
-            //animationList[1].ended = true;
+            animationList[1].ended = true;
           }
           if (line === "animation3-end") {
             console.log("done");
             io.emit("ended3");
-            //animationList[2].ended = true;
+            animationList[2].ended = true;
           }
         });
       }
@@ -136,15 +135,15 @@ if (input.getPortCount() > 0) {
         chosenAnimation.note = message[1];
         writeToArduino(chosenAnimation.startMessage);
         chosenAnimation.timer = setInterval(() => {
-          chosenAnimation.counter++;
-          if (chosenAnimation.counter === timeLimit) {
-            writeToArduino(chosenAnimation.longMessage);
-          }
-          // if (chosenAnimation.ended===true) {
+          // chosenAnimation.counter++;
+          // if (chosenAnimation.counter === timeLimit) {
           //   writeToArduino(chosenAnimation.longMessage);
-          //   chosenAnimation.false;
           // }
-        }, 1);
+          if (chosenAnimation.ended===true) {
+            writeToArduino(chosenAnimation.longMessage);
+            chosenAnimation.ended = false;
+          }
+        }, 100);
       }
     } else {
       //check if note was in the list
@@ -159,8 +158,8 @@ if (input.getPortCount() > 0) {
         const selectedAnimation = animationList.find(
           (item) => item.note === selectedNote.note
         );
+        selectedAnimation.ended = false;
         clearInterval(selectedAnimation.timer);
-        //selectedAnimation.ended = false;
         selectedAnimation.counter = 0;
         selectedAnimation.note = null;
         //add animation index back to list of available animationIndices
