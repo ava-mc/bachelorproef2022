@@ -1,4 +1,4 @@
-import { socket } from "./lib.js";
+import { socket } from "./screens.js";
 
 export const initScreen2 = () => {
   const $example = document.querySelector(".example");

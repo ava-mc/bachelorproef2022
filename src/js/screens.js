@@ -1,4 +1,5 @@
-import { socket } from "./lib.js";
+import { io } from "socket.io-client";
+export const socket = io.connect();
 import {initScreen1} from "./screen1.js";
 import { initScreen2 } from "./screen2.js";
 import { initScreen3 } from "./screen3.js";
