@@ -57,7 +57,6 @@ serialPort.list().then((ports) => {
   let count = 0;
   let allports = ports.length;
   let pm;
-  console.log(allports);
   ports.forEach(function (port) {
     count = count + 1;
     pm = port.manufacturer;
@@ -65,7 +64,6 @@ serialPort.list().then((ports) => {
 
     if (typeof pm !== "undefined") {
       if (pm.toLowerCase().includes("arduino")) path = port.path;
-      console.log(typeof path, path);
       arduinoSerialPort = new serialport.SerialPort({ path, baudRate: 9600 });
       arduinoSerialPort.on("open", function () {
         console.log(`connected! arduino is now connected at port ${path}`);
@@ -78,16 +76,22 @@ serialPort.list().then((ports) => {
           console.log("got word from arduino:", data.toString("utf8"));
           if (line === "animation-end") {
             io.emit("ended");
-            animationList[0].ended = true;
+            if (animationList[0].counter > 0) {
+              animationList[0].ended = true;
+            }
           }
           if (line === "animation2-end") {
             io.emit("ended2");
-            animationList[1].ended = true;
+            if (animationList[1].counter > 0) {
+              animationList[1].ended = true;
+            }
           }
           if (line === "animation3-end") {
             console.log("done");
             io.emit("ended3");
-            animationList[2].ended = true;
+            if (animationList[2].counter > 0) {
+              animationList[2].ended = true;
+            }
           }
         });
       }
@@ -140,7 +144,7 @@ if (input.getPortCount() > 0) {
           chosenAnimation.note = message[1];
           writeToArduino(chosenAnimation.startMessage);
           chosenAnimation.timer = setInterval(() => {
-            // chosenAnimation.counter++;
+            chosenAnimation.counter++;
             // if (chosenAnimation.counter === timeLimit) {
             //   writeToArduino(chosenAnimation.longMessage);
             // }
@@ -164,6 +168,7 @@ if (input.getPortCount() > 0) {
             (item) => item.note === selectedNote.note
           );
           selectedAnimation.ended = false;
+          selectedAnimation.counter = 0;
           clearInterval(selectedAnimation.timer);
           selectedAnimation.counter = 0;
           selectedAnimation.note = null;
