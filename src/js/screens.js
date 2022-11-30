@@ -1,4 +1,4 @@
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 export const socket = io.connect();
 import {initScreen1} from "./screen1.js";
 import { initScreen2 } from "./screen2.js";
