@@ -47,7 +47,12 @@ for (let i = 0; i < animationList.length; i++) {
   console.log(availableAnimationIndices);
 }
 
-const midiType = 144;
+//Big keyboard at home
+// const midiType = [144];
+// const endSignal = 0;
+//
+const midiType = [128, 144];
+const endSignal = 127;
 
 let path = "";
 let arduinoSerialPort = "";
@@ -119,10 +124,10 @@ if (input.getPortCount() > 0) {
     console.log(message);
     console.log(`m: ${message} d: ${deltaTime}`);
     //check the type of midi input, we only read note values
-    if (message[0] == midiType) {
-      console.log(midiType, message[0]);
+    if (midiType.includes(message[0])) {
+      // console.log(midiType, message[0]);
       //check that the note is started
-      if (message[2] != 0) {
+      if (message[2] != endSignal) {
         // check if there are still animations available to link to the new note
         if (availableAnimationIndices.length === 0) {
         } else {
@@ -272,7 +277,7 @@ io.on("connection", (socket) => {
       //let other clients know that a new screen choice was made and which screens ar currently already chosen and thus unavailable
       io.emit("screen chosen", chosenScreens);
       if (chosenScreens.length == 3) {
-        startInstallation = true;
+        // startInstallation = true;
       }
     });
   }
