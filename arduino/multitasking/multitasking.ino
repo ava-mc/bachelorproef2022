@@ -77,17 +77,20 @@ void loop() {
       //animateReusable(0, 9, "animation-end", 0, 0, 100);
       startAnimation1 = true;
       startTime1 = currentTime;
+      pixelNumber1 = 0-1;
     }
 
     if (incomingByte == '2') {
       // animateReusable(10, 19, "animation2-end", 255, 0, 0);
       startAnimation2 = true;
       startTime2 = currentTime;
+      pixelNumber2 = 10-1;
     }
     if (incomingByte == '3') {
       // animateReusable(20, 29, "animation3-end", 100, 255, 0);
       startAnimation3 = true;
       startTime3 = currentTime;
+      pixelNumber3 = 20-1;
     }
     if (incomingByte == 'a') {
       longPress1 = true;
@@ -288,7 +291,7 @@ if (startAnimation3 == true)
   if (currentTime - startTime3>=period) {
     startTime3 = currentTime;
     if (pixelNumber3<30){
-      NeoPixel.setPixelColor(pixelNumber3, NeoPixel.Color(100, 255, pixelNumber1 * 10 + 20));
+      NeoPixel.setPixelColor(pixelNumber3, NeoPixel.Color(100, 255, pixelNumber3 * 10 + 20));
       //LEDList[pixelNumber3] = 1;
     }
     if (pixelNumber3>=20-1+SIZE) {
@@ -330,7 +333,7 @@ if (startAnimation3 == true)
           clearPixels(10, 19);
         }
         else {
-          turnOn(10, 19, 255, pixelNumber2 * 20 + 20, 100);
+          turnOn(10, 19, 255, 20, 100);
         }
       }
     }
