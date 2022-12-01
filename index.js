@@ -54,6 +54,50 @@ for (let i = 0; i < animationList.length; i++) {
 const midiType = [128, 144];
 const endSignal = 127;
 
+let playScreenSaver = true;
+let screenSaverTimer;
+let screenSaverCounter = 0;
+const screenSaverMaxWait = 10;
+
+const showScreenSaver = () => {
+  writeToArduino("s");
+};
+
+const startScreensaverTimer = () => {
+  //to be safe, we stop the timer before we start it
+  //stopScreenSaverTimer();
+
+  playScreenSaver = true;
+
+  screenSaverTimer = setInterval(()=>{
+    screenSaverCounter++;
+    console.log(screenSaverCounter);
+    if (screenSaverCounter>screenSaverMaxWait) {
+      //let arduino know to start screensaver effect
+      if (playScreenSaver) {
+        console.log('start screensaver');
+        showScreenSaver();
+        playScreenSaver = false;
+      }
+      
+    }
+  }, 1000)
+}
+
+const stopScreenSaverTimer = () => {
+  console.log('stop screensaver');
+  //let arduino now to stop
+  writeToArduino('t');
+
+  //stop timer
+  clearInterval(screenSaverTimer);
+
+  //reset timer
+  screenSaverCounter = 0;
+  playScreenSaver = false;
+
+}
+
 let path = "";
 let arduinoSerialPort = "";
 // check at which port the arduino is selected, to set up our serial communication
@@ -72,6 +116,9 @@ serialPort.list().then((ports) => {
       arduinoSerialPort = new serialport.SerialPort({ path, baudRate: 9600 });
       arduinoSerialPort.on("open", function () {
         console.log(`connected! arduino is now connected at port ${path}`);
+
+        //start the screensaver timer for the first time
+        startScreensaverTimer();
       });
       //reading the signal from the arduino
       if (arduinoSerialPort) {
@@ -128,6 +175,9 @@ if (input.getPortCount() > 0) {
       // console.log(midiType, message[0]);
       //check that the note is started
       if (message[2] != endSignal) {
+        // stop screensaver timer
+        stopScreenSaverTimer();
+
         // check if there are still animations available to link to the new note
         if (availableAnimationIndices.length === 0) {
         } else {
@@ -160,6 +210,9 @@ if (input.getPortCount() > 0) {
           }, 100);
         }
       } else {
+        //start screensaver timer
+        startScreensaverTimer();
+
         //check if note was in the list
         console.log(currentNotes);
         const selectedNote = currentNotes.find(
