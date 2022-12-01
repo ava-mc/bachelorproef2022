@@ -58,6 +58,7 @@ let playScreenSaver = true;
 let screenSaverTimer;
 let screenSaverCounter = 0;
 const screenSaverMaxWait = 10;
+// const screenSaverMaxWait = 2;
 
 const showScreenSaver = () => {
   writeToArduino("s");

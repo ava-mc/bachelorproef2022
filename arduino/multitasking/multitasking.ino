@@ -10,7 +10,6 @@
 #define SIZE 5
 
 
-
 char incomingByte = 0; // for incoming serial data
 bool startAnimation = false;
 char startSign= '1';
@@ -20,6 +19,18 @@ bool longPress3 = false;
 bool startAnimation1 = false;
 bool startAnimation2 = false;
 bool startAnimation3 = false;
+bool playScreenSaver = false;
+unsigned long screensaverStart = 0;
+unsigned long screensaverDelay = 8000;
+bool screenSaverTimer = false;
+unsigned long fadingDelay = 50;
+unsigned long fadingStart = 0;
+int fadingPoint = 0;
+int fadingMax = 100;
+int fadingMin = 0;
+int fadingWait = 50;
+int fadingAmount = 2;
+bool fadingSwitch = true;
 
 unsigned long startTime1 = 0;
 int pixelNumber1 = 0 -1;
@@ -114,7 +125,112 @@ void loop() {
       //flickerTimer3 = false;
       //NeoPixel.show();
     }
+
+     if (incomingByte =='s') {
+      playScreenSaver = true;
+      screensaverStart = currentTime;
+      fadingStart = currentTime;
+      fadingPoint = 0;
+      fadingSwitch = true;
+     }
+
+    if (incomingByte=='t') {
+      playScreenSaver = false;
+      clearPixels(0, NUM_PIXELS);
+    }
   }
+
+if (playScreenSaver == true) {
+  // if (currentTime - screensaverStart >= screensaverDelay){
+    // Serial.print(fadingPoint);
+        // screensaverStart = currentTime;
+        // screenSaverTimer = !screenSaverTimer;
+        
+        // if (screenSaverTimer== false) {
+        //   //clearPixels(0, NUM_PIXELS);
+        //   //brighten();
+        //   fadingStart = currentTime;
+        //   darken();
+        if (currentTime-fadingStart>=fadingDelay){
+          // for (int i = 0; i <= NUM_PIXELS;i++) {
+          //   NeoPixel.setPixelColor(i, 255, 255, 255);
+          // }
+          Serial.print(fadingPoint);
+          fadingStart = currentTime;
+          // for (int i = 0; i <= NUM_PIXELS;i++) {
+          //   NeoPixel.setPixelColor(i, fadingPoint, fadingPoint, fadingPoint);
+          // }
+          if (fadingPoint<=fadingMax&&fadingPoint>=fadingMin){
+            // NeoPixel.setBrightness(fadingPoint);
+            for (int i = 0; i <= NUM_PIXELS;i++) {
+            NeoPixel.setPixelColor(i, fadingPoint, fadingPoint, fadingPoint);
+            NeoPixel.show();
+          }
+          }
+          // else {
+          //   if (fadingPoint>fadingMax){
+          //     for (int i = 0; i <= NUM_PIXELS;i++) {
+          //       NeoPixel.setPixelColor(i, fadingMax, fadingMax, fadingMax);
+          //       NeoPixel.show();
+          // }
+          //   }
+          //   if (fadingPoint<fadingMin) {
+          //     for (int i = 0; i <= NUM_PIXELS;i++) {
+          //       NeoPixel.setPixelColor(i, fadingMin, fadingMin, fadingMin);
+          //       NeoPixel.show();
+          //   }
+          //   }
+          // }
+        if (fadingPoint<20&&fadingPoint>0) {
+          fadingAmount = 1;
+        }
+        else {
+          fadingAmount = 3;
+        }
+          if (fadingSwitch==true){
+            if (fadingPoint<fadingMax) {
+              fadingPoint+= fadingAmount;
+            }
+            if (fadingPoint>= fadingMax) {
+              fadingSwitch = false;
+            }
+          }
+          else {
+            if (fadingPoint>fadingMin - fadingWait) {
+              fadingPoint-= fadingAmount;
+            }
+            if (fadingPoint<= fadingMin - fadingWait) {
+              fadingSwitch = true;
+            }
+          }
+          
+        }
+        //         }
+        // else {
+        //   if (currentTime-fadingStart>=fadingDelay){
+        //   fadingStart = currentTime;
+        //   // for (int i = 0; i <= NUM_PIXELS;i++) {
+        //   //   NeoPixel.setPixelColor(i, fadingPoint, fadingPoint, fadingPoint);
+        //   // }
+        //   // NeoPixel.show();
+        //   // if (fadingPoint>fadingMin) {
+        //   //   fadingPoint--;
+        //   // }
+        //   NeoPixel.setBrightness(fadingPoint);
+        //   NeoPixel.show();
+        //   if (fadingPoint>fadingMin) {
+        //     Serial.print(fadingPoint);
+        //     fadingPoint--;
+        //   }
+          // }
+        //   //turnOn(0, NUM_PIXELS, 255, 255, 255);
+        //   //darken();
+        //   brighten();
+        // }
+
+
+  // }
+}
 
 if (startAnimation1 == true)
 {
@@ -201,7 +317,7 @@ if (startAnimation3 == true)
         }
          else
         {
-          turnOn(0, 9, 0, 0, 100);
+          turnOn(0, 9, pixelNumber1 * 30 + 20, 100, 255);
         }
       }
     }
@@ -214,7 +330,7 @@ if (startAnimation3 == true)
           clearPixels(10, 19);
         }
         else {
-          turnOn(10, 19, 255, 0, 0);
+          turnOn(10, 19, 255, pixelNumber2 * 20 + 20, 100);
         }
       }
     }
@@ -227,7 +343,7 @@ if (longPress3==true) {
           clearPixels(20, 29);
         }
         else {
-          turnOn(20, 29, 100, 255, 0);
+          turnOn(20, 29, 100, 255, pixelNumber1 * 10 + 20);
         }
       }
     }
@@ -322,8 +438,35 @@ void flicker(int START, int END, int R, int G, int B) {
 void turnOn(int START, int END, int R, int G, int B) {
     for (int pixel = START; pixel <= END; pixel++)
     {
-      NeoPixel.setPixelColor(pixel, NeoPixel.Color(R, G, B + pixel * 10 + 20));
+      NeoPixel.setPixelColor(pixel, NeoPixel.Color(R, G, B 
+      //+ pixel * 10 + 20
+      ));
     }
     NeoPixel.show();
 }
+
+// void brighten() {
+//   uint16_t i, j;
+
+//  if (currentTime - fadingStart >= fadingDelay){
+
+//     for (int j = 0; j <= 255) {
+//       for (int i = 0; i < NUM_PIXELS; i++) {
+//         NeoPixel.setPixelColor(i, j, j, j);
+//       }
+//       NeoPixel.show();
+//     }
+//   }
+// }
+
+// void darken() {
+//   uint16_t i, j;
+//   for (j = 255; j >= 0; j--) {
+//     for (i = 0; i < NeoPixel.numPixels(); i++) {
+//       NeoPixel.setPixelColor(i, j, j, j);
+//     }
+//     NeoPixel.show();
+//   }
+// }
+
 
