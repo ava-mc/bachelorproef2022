@@ -6,6 +6,7 @@ import { initScreen3 } from "./screen3.js";
 
 window.addEventListener("keydown", () => {
   socket.emit("start");
+  socket.emit('change');
 });
 
 // const $example = document.querySelector(".example");

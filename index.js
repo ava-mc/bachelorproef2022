@@ -157,14 +157,44 @@ serialPort.list().then((ports) => {
   });
 });
 
+
+// Set up a new output.
+const output = new midi.Output();
+const outputOptions = [];
+let selectedOutput = 0;
+output.openPort(1);
+
+// Count the available output ports.
+// output.getPortCount();
+// console.log('output', output);
+// output.openVirtualPort("Test1");
+
+
+
+
 const input = new midi.Input();
 const timeLimit = 500;
 
 //only try to open midi port when there is at least one port available
 if (input.getPortCount() > 0) {
+  console.log(input.getPortCount());
+  console.log(output.getPortCount());
   // Get the name of a specified input port.
-  input.getPortName(0);
+  // input.getPortName(0);
+  for (let i=0;i<input.getPortCount();i++){
+    console.log(input.getPortName(i));
+  }
+  for (let i = 0; i < output.getPortCount(); i++) {
+    console.log('output', output.getPortName(i));
+    if (output.getPortName(i).includes('Test')) {
+      console.log('this works', output.getPortName(i));
+      outputOptions.push(i);
+    }
+  }
+  // output.openPort(1);
   input.on("message", (deltaTime, message) => {
+    console.log(output)
+    output.sendMessage(message);
     // The message is an array of numbers corresponding to the MIDI bytes:
     //   [status, data1, data2]
     // https://www.cs.cf.ac.uk/Dave/Multimedia/node158.html has some helpful
@@ -279,6 +309,16 @@ io.on("connection", (socket) => {
     console.log("got message from screen");
     writeToArduino("1");
   });
+
+  socket.on('change', () => {
+    output.closePort(outputOptions[selectedOutput]);
+
+    selectedOutput++;
+    if (selectedOutput=== outputOptions.length){
+      selectedOutput = 0;
+    }
+    output.openPort(outputOptions[selectedOutput]);
+  })
   // socket.on("start2", () => {
   //   console.log("got message from screen");
   //   writeToArduino("2");
