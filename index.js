@@ -64,8 +64,8 @@ const showScreenSaver = () => {
 };
 
 const startScreensaverTimer = () => {
-  //to be safe, we stop the timer before we start it
-  //stopScreenSaverTimer();
+  //to be safe, we stop the timer before we start it, so only 1 timer can run at the same time.
+  stopScreenSaverTimer();
 
   playScreenSaver = true;
 
@@ -210,9 +210,6 @@ if (input.getPortCount() > 0) {
           }, 100);
         }
       } else {
-        //start screensaver timer
-        startScreensaverTimer();
-
         //check if note was in the list
         console.log(currentNotes);
         const selectedNote = currentNotes.find(
@@ -234,6 +231,11 @@ if (input.getPortCount() > 0) {
           const index = animationList.indexOf(selectedAnimation);
           availableAnimationIndices.push(index);
           writeToArduino(selectedAnimation.endMessage);
+        }
+
+        //start screensaver timer if no notes are currently being played anymore
+        if (currentNotes.length === 0) {
+          startScreensaverTimer();
         }
       }
     }
