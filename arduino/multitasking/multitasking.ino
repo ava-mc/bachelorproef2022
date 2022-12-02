@@ -56,7 +56,6 @@ int buttonState=0;
 int lastButtonState = LOW;   
 unsigned long lastDebounceTime = 0;  
 unsigned long debounceDelay = 50; 
-int ledState = HIGH;   
 
 void setup() {
   NeoPixel.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
@@ -69,11 +68,6 @@ void setup() {
 
   //BUTTON
   pinMode(buttonPin, INPUT);
-  pinMode(LED_BUILTIN, OUTPUT);
-
- // set initial LED state
-  digitalWrite(LED_BUILTIN, ledState);
-
 }
 
 void loop() {
@@ -211,13 +205,11 @@ for (int i = 0; i < numberOfLedStrips;i++) {
       buttonState = reading;
       // let node server know button is pressed
       if (buttonState == HIGH) {
-        ledState = !ledState;
         Serial.print("button");
       }
     }
   }
-  // set the LED:
-  digitalWrite(LED_BUILTIN, ledState);
+
   // save the reading. Next time through the loop, it'll be the lastButtonState:
   lastButtonState = reading;
 }
