@@ -49,6 +49,15 @@ bool fadingSwitch = true;
 
 Adafruit_NeoPixel NeoPixel(NUM_PIXELS, PIN_NEO_PIXEL, NEO_GRB + NEO_KHZ800);
 
+
+//BUTTON FOR OUTPUT CHANGE
+const int buttonPin = 6; 
+int buttonState=0; 
+int lastButtonState = LOW;   
+unsigned long lastDebounceTime = 0;  
+unsigned long debounceDelay = 50; 
+int ledState = HIGH;   
+
 void setup() {
   NeoPixel.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
   Serial.begin(9600); // Starts the serial communication
@@ -57,6 +66,14 @@ void setup() {
   for (int i = 0; i < numberOfLedStrips;i++) {
     pixelNumber[i] = pixelNumberStart[i]-1;
   }
+
+  //BUTTON
+  pinMode(buttonPin, INPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
+
+ // set initial LED state
+  digitalWrite(LED_BUILTIN, ledState);
+
 }
 
 void loop() {
@@ -175,6 +192,34 @@ for (int i = 0; i < numberOfLedStrips;i++) {
       }
     }
   }
+
+
+  //BUTTON
+  int reading = digitalRead(buttonPin);
+  // If the switch changed, due to noise or pressing:
+  if (reading != lastButtonState) {
+    // reset the debouncing timer
+    lastDebounceTime = currentTime;
+  }
+
+  if ((currentTime - lastDebounceTime) > debounceDelay) {
+    // whatever the reading is at, it's been there for longer than the debounce
+    // delay, so take it as the actual current state:
+
+    // if the button state has changed:
+    if (reading != buttonState) {
+      buttonState = reading;
+      // let node server know button is pressed
+      if (buttonState == HIGH) {
+        ledState = !ledState;
+        Serial.print("button");
+      }
+    }
+  }
+  // set the LED:
+  digitalWrite(LED_BUILTIN, ledState);
+  // save the reading. Next time through the loop, it'll be the lastButtonState:
+  lastButtonState = reading;
 }
 
 void clearPixels(int START, int END) {

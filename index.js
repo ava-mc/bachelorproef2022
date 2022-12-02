@@ -146,6 +146,10 @@ serialPort.list().then((ports) => {
               animationList[2].ended = true;
             }
           }
+
+          if (line === "button") {
+            changeOutput();
+          }
         });
       }
       done = true;
@@ -163,6 +167,16 @@ const output = new midi.Output();
 const outputOptions = [];
 let selectedOutput = 0;
 output.openPort(1);
+
+const changeOutput = () => {
+  output.closePort(outputOptions[selectedOutput]);
+
+  selectedOutput++;
+  if (selectedOutput === outputOptions.length) {
+    selectedOutput = 0;
+  }
+  output.openPort(outputOptions[selectedOutput]);
+}
 
 // Count the available output ports.
 // output.getPortCount();
@@ -310,15 +324,6 @@ io.on("connection", (socket) => {
     writeToArduino("1");
   });
 
-  socket.on('change', () => {
-    output.closePort(outputOptions[selectedOutput]);
-
-    selectedOutput++;
-    if (selectedOutput=== outputOptions.length){
-      selectedOutput = 0;
-    }
-    output.openPort(outputOptions[selectedOutput]);
-  })
   // socket.on("start2", () => {
   //   console.log("got message from screen");
   //   writeToArduino("2");
