@@ -169,6 +169,11 @@ let selectedOutput = 0;
 output.openPort(1);
 
 const changeOutput = () => {
+  //make sure output message is stopped with current output channel
+  currentNotes.forEach(note=> {
+    output.sendMessage([note.type, note.note, endSignal]);
+  })
+
   output.closePort(outputOptions[selectedOutput]);
 
   selectedOutput++;
@@ -176,6 +181,11 @@ const changeOutput = () => {
     selectedOutput = 0;
   }
   output.openPort(outputOptions[selectedOutput]);
+
+  //resend signal when new output port is opened
+  currentNotes.forEach((note) => {
+    output.sendMessage([note.type, note.note, note.start]);
+  });
 }
 
 // Count the available output ports.
@@ -226,7 +236,7 @@ if (input.getPortCount() > 0) {
         // check if there are still animations available to link to the new note
         if (availableAnimationIndices.length === 0) {
         } else {
-          currentNotes.push({ note: message[1], start: message[2] });
+          currentNotes.push({type: message[0], note: message[1], start: message[2] });
 
           //get random animation
           const animationIndex =
