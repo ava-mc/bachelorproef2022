@@ -47,6 +47,8 @@ for (let i = 0; i < animationList.length; i++) {
   console.log(availableAnimationIndices);
 }
 
+
+
 //Big keyboard at home
 const midiType = [144];
 const endSignal = 0;
@@ -194,6 +196,60 @@ const changeOutput = () => {
 // output.openVirtualPort("Test1");
 
 
+const ascii = (number) => {
+  return String.fromCharCode(number);
+}
+
+// const asciiList = [];
+// for (let i = 0; i < 127; i++) {
+//   asciiList.push(ascii(255 - i));
+//   console.log(asciiList[i]);
+// }
+// console.log(asciiList);
+
+const brightnessList = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "U",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z",
+]; 
+// for (let i = 0;i<10;i++) {
+//   brightnessList[i].brightness= 25*(i+1);
+// }
+// console.log(brightnessList);
+
+const getBrightnessCode = (number) => {
+  const index = Math.floor(number / 4);
+  console.log(index);
+  if (index>=brightnessList.length) {
+    return brightnessList[brightnessList.length-1];
+  }
+  else {
+    return brightnessList[Math.floor(number / 4)];
+  }
+}
 
 
 const input = new midi.Input();
@@ -230,6 +286,12 @@ if (input.getPortCount() > 0) {
       // console.log(midiType, message[0]);
       //check that the note is started
       if (message[2] != endSignal) {
+          //send velocity to the arduino to adjust brightness
+          // writeToArduino(`<${message[2]}>`);
+          // writeToArduino(ascii(message[2]));
+          // console.log(ascii(message[2]));
+          writeToArduino(getBrightnessCode(message[2]));
+
         // stop screensaver timer
         stopScreenSaverTimer();
 
@@ -305,7 +367,7 @@ const writeToArduino = (msg) => {
     if (err) {
       return console.log("Error on write: ", err.message);
     }
-    console.log("message written");
+    console.log("message written ", msg);
   });
 };
 
