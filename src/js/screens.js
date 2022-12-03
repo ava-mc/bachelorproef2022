@@ -37,6 +37,12 @@ window.onload = (event) => {
   }
 };
 
+let animationInfo;
+socket.on('animation-info',info => {
+    animationInfo = info;
+    console.log('the animation info:', animationInfo);
+})
+
 //catch server response of own chosen screen
 socket.on('screen choice', (chosenScreen) => {
     console.log('this client chose screen ', chosenScreen);

@@ -13,6 +13,56 @@ import { fileURLToPath } from "url";
 import midi from "midi";
 import { getRandomInt } from "./src/js/lib.js";
 
+import fs from 'fs';
+
+
+const amountOfScreens = 3;
+//function that counts number of files in a directory
+const addFileAmount = async (dir, list, name, index) => {
+  let amount;
+  fs.readdir(dir, (err, files) => {
+    amount = files.length;
+    console.log('this', amount);
+    console.log('other', files.length);
+    let object = {};
+    object.name = `${name}-${index}`;
+    object.amount = amount;
+    list.push(object);
+    console.log(list);
+    console.log('final', screenSequences);
+  });
+};
+
+const getAmountOfAnimations = async (dir, list, name, index) => {
+  let amount;
+  fs.readdir(dir, (err, files) => {
+    amount = files.length;
+    let object = {};
+    object.name = `${name}-${index}`;
+    object.animations = [];
+    if (amount>0) {
+      for (let i=1;i<=amount;i++) {
+        addFileAmount(`${dir}/animation-${i}`, object.animations, 'animation', i);
+      }
+    }
+    list.push(object);
+  });
+};
+
+//count the amount of png sequences and number of pngs per sequence for each screen
+const screenSequences = [];
+const getSequences = async () => {
+  for (let i = 1; i <= amountOfScreens; i++) {
+    const screenObject = { name: `screen-${i}` };
+    const folder = `src/assets/pngseq/screen-${i}/`;
+    getAmountOfAnimations(folder, screenSequences, 'screen', i);
+  }
+}
+
+getSequences();
+
+
+
 const animationList = [
   {
     startMessage: "1",
@@ -82,7 +132,7 @@ const startScreensaverTimer = () => {
         showScreenSaver();
         playScreenSaver = false;
       }
-      
+
     }
   }, 1000)
 }
@@ -217,7 +267,7 @@ const brightnessList = [
   "X",
   "Y",
   "Z",
-]; 
+];
 
 const getBrightnessCode = (number) => {
   const index = Math.floor(number / 4);
@@ -363,6 +413,8 @@ const getObjKey = (obj, value) => {
 };
 
 io.on("connection", (socket) => {
+  // io.emit('animation-info',screenSequences);
+
   socket.on("start", () => {
     console.log("got message from screen");
     writeToArduino("1");
@@ -419,6 +471,15 @@ io.on("connection", (socket) => {
 
       //emit their chosen screen to the sender
       socket.emit("screen choice", chosenScreen);
+
+      //send the right animation info based on the screen choice
+      socket.emit(
+        "animation-info",
+        screenSequences.find(
+          (item) => item.name.charAt(item.name.length - 1) == chosenScreen
+        )
+      );
+
       //let other clients know that a new screen choice was made and which screens ar currently already chosen and thus unavailable
       io.emit("screen chosen", chosenScreens);
       if (chosenScreens.length == 3) {
