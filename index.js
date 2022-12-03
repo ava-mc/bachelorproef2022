@@ -316,16 +316,16 @@ if (input.getPortCount() > 0) {
         // stop screensaver timer
         stopScreenSaverTimer();
 
+        //add the notes to the list of current notes
+        currentNotes.push({
+          type: message[0],
+          note: message[1],
+          start: message[2],
+        });
+
         // check if there are still animations available to link to the new note
         if (availableAnimationIndices.length === 0) {
-          currentNotes.push({
-            type: message[0],
-            note: message[1],
-            start: message[2],
-          });
         } else {
-          currentNotes.push({type: message[0], note: message[1], start: message[2] });
-
           //get random animation
           const animationIndex =
             availableAnimationIndices[
