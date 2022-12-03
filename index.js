@@ -50,7 +50,6 @@ const getAmountOfAnimations = async (dir, list, name, index) => {
 const screenSequences = [];
 const getSequences = async () => {
   for (let i = 1; i <= amountOfScreens; i++) {
-    const screenObject = { name: `screen-${i}` };
     const folder = `src/assets/pngseq/screen-${i}/`;
     getAmountOfAnimations(folder, screenSequences, 'screen', i);
   }
