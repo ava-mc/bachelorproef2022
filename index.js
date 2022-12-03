@@ -190,23 +190,6 @@ const changeOutput = () => {
   });
 }
 
-// Count the available output ports.
-// output.getPortCount();
-// console.log('output', output);
-// output.openVirtualPort("Test1");
-
-
-const ascii = (number) => {
-  return String.fromCharCode(number);
-}
-
-// const asciiList = [];
-// for (let i = 0; i < 127; i++) {
-//   asciiList.push(ascii(255 - i));
-//   console.log(asciiList[i]);
-// }
-// console.log(asciiList);
-
 const brightnessList = [
   "A",
   "B",
@@ -235,10 +218,6 @@ const brightnessList = [
   "Y",
   "Z",
 ]; 
-// for (let i = 0;i<10;i++) {
-//   brightnessList[i].brightness= 25*(i+1);
-// }
-// console.log(brightnessList);
 
 const getBrightnessCode = (number) => {
   const index = Math.floor(number / 4);
@@ -283,13 +262,9 @@ if (input.getPortCount() > 0) {
     console.log(`m: ${message} d: ${deltaTime}`);
     //check the type of midi input, we only read note values
     if (midiType.includes(message[0])) {
-      // console.log(midiType, message[0]);
       //check that the note is started
       if (message[2] != endSignal) {
           //send velocity to the arduino to adjust brightness
-          // writeToArduino(`<${message[2]}>`);
-          // writeToArduino(ascii(message[2]));
-          // console.log(ascii(message[2]));
           writeToArduino(getBrightnessCode(message[2]));
 
         // stop screensaver timer
@@ -317,9 +292,6 @@ if (input.getPortCount() > 0) {
           writeToArduino(chosenAnimation.startMessage);
           chosenAnimation.timer = setInterval(() => {
             chosenAnimation.counter++;
-            // if (chosenAnimation.counter === timeLimit) {
-            //   writeToArduino(chosenAnimation.longMessage);
-            // }
             if (chosenAnimation.ended === true) {
               writeToArduino(chosenAnimation.longMessage);
               chosenAnimation.ended = false;
