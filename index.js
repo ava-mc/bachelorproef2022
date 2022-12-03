@@ -318,6 +318,11 @@ if (input.getPortCount() > 0) {
 
         // check if there are still animations available to link to the new note
         if (availableAnimationIndices.length === 0) {
+          currentNotes.push({
+            type: message[0],
+            note: message[1],
+            start: message[2],
+          });
         } else {
           currentNotes.push({type: message[0], note: message[1], start: message[2] });
 
@@ -357,15 +362,17 @@ if (input.getPortCount() > 0) {
           const selectedAnimation = animationList.find(
             (item) => item.note === selectedNote.note
           );
-          selectedAnimation.ended = false;
-          selectedAnimation.counter = 0;
-          clearInterval(selectedAnimation.timer);
-          selectedAnimation.counter = 0;
-          selectedAnimation.note = null;
-          //add animation index back to list of available animationIndices
-          const index = animationList.indexOf(selectedAnimation);
-          availableAnimationIndices.push(index);
-          writeToArduino(selectedAnimation.endMessage);
+          if (selectedAnimation) {
+            selectedAnimation.ended = false;
+            selectedAnimation.counter = 0;
+            clearInterval(selectedAnimation.timer);
+            selectedAnimation.counter = 0;
+            selectedAnimation.note = null;
+            //add animation index back to list of available animationIndices
+            const index = animationList.indexOf(selectedAnimation);
+            availableAnimationIndices.push(index);
+            writeToArduino(selectedAnimation.endMessage);
+          }
         }
 
         //start screensaver timer if no notes are currently being played anymore
