@@ -1,4 +1,3 @@
-// import { io } from "socket.io-client";
 export const socket = io.connect();
 import {initScreen1} from "./screen1.js";
 import { initScreen2 } from "./screen2.js";
@@ -41,7 +40,84 @@ let animationInfo;
 socket.on('animation-info',info => {
     animationInfo = info;
     console.log('the animation info:', animationInfo);
+    loadImages(animationInfo);
+
 })
+
+let imagesList = [];
+
+const $canvas = document.getElementById('canvas');
+$canvas.width = window.innerWidth;
+$canvas.height = window.innerHeight;
+const context = $canvas.getContext('2d');
+
+const showImage = (img) => {
+    context.drawImage(img, $canvas.width, $canvas.height, 0,0);
+}
+
+const sourceStart = 'src/assets/pngseq/'
+//Load png sequences
+const loadImages = async (animationInfo) => {
+    const animationList = animationInfo.animations;
+    const screenName = animationInfo.name;
+    for(let i=0;i<animationList.length;i++){
+        const currentAnimationFolder = animationList[i];
+        let imagesObject = {};
+        imagesObject.name = currentAnimationFolder.name;
+        imagesObject.long = [];
+        imagesObject.short = [];
+        // for (let j = 0;j<currentAnimationFolder.long;j++){
+        //     let numberString = j.toString();
+        //     const numberlength = numberString.length;
+        //     let zeros = '';
+        //     for (let k = 0;k<5-numberlength;k++){
+        //         zeros += '0';
+        //     }
+        //     const image = await loadImage(
+        //       `${sourceStart}${screenName}/animation-${i + 1}/long/animation-${i + 1}-long_${zeros}${numberString}.png`
+        //     );
+        //     imagesObject.long.push(image);
+        //     console.log(imagesObject);
+        // }
+        loadTypedImages(imagesObject, "long", currentAnimationFolder.long, screenName, i);
+        loadTypedImages(
+          imagesObject,
+          "short",
+          currentAnimationFolder.short,
+          screenName,
+          i
+        );
+        imagesList.push(imagesObject);
+        console.log(imagesList);
+
+    }
+}
+
+const loadTypedImages = async (object, name, length, screenName, screenIndex) => {
+    for (let j = 0;j<length;j++){
+            let numberString = j.toString();
+            const numberlength = numberString.length;
+            let zeros = '';
+            for (let k = 0;k<5-numberlength;k++){
+                zeros += '0';
+            }
+            const image = await loadImage(
+              `${sourceStart}${screenName}/animation-${screenIndex + 1}/long/animation-${screenIndex + 1}-long_${zeros}${numberString}.png`
+            );
+            object[name].push(image);
+            console.log(object);
+        }
+}
+
+//load an image
+const loadImage = (src) => {
+  return new Promise((resolve, reject) => {
+    let img = new Image()
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  })
+}
 
 //catch server response of own chosen screen
 socket.on('screen choice', (chosenScreen) => {
