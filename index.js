@@ -422,8 +422,10 @@ if (input.getPortCount() > 0) {
             writeToArduino(selectedAnimation.endMessage);
 
             //let screen know that long animation should stop
-            selectedAnimation.animationInfo.long = false;
-            io.emit("pngs", selectedAnimation.animationInfo);
+            if (selectedAnimation.animationInfo.long) {
+              selectedAnimation.animationInfo.long = false;
+              io.emit("pngs", selectedAnimation.animationInfo);
+            }
 
           }
         }

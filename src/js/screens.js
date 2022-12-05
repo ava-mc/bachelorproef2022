@@ -64,7 +64,7 @@ $canvas.height = window.innerHeight;
 const context = $canvas.getContext("2d");
 
 const showImage = (img) => {
-  context.drawImage(img, window.innerWidth, window.innerHeight, 0, 0);
+//   context.drawImage(img, window.innerWidth, window.innerHeight, 0, 0);
   img.style.display = "block";
 };
 
@@ -126,6 +126,7 @@ const loadTypedImages = async (
       `animation-${screenIndex + 1}-${name}_${zeros}${numberString}`
     );
     console.log(image);
+    object[name].push(image);
   }
 };
 
@@ -165,7 +166,9 @@ const loop = () => {
 
             //only show current image
             const image = playItem.images[playItem.index];
-            showImage(image);
+            if (image) {
+                showImage(image);
+            }
             playItem.index++;
 
             if (playItem.index>=length) {
@@ -196,6 +199,7 @@ let playInfo = [];
 socket.on("pngs", (info) => {
     console.log(currentScreen)
     if (info.screen==currentScreen) {
+        console.log(info);
         console.log('start right animation');
 
         //get the duration state
@@ -209,6 +213,7 @@ socket.on("pngs", (info) => {
 
         //if no state is true, we remove the animation info from the playing list and hide the images
         if (!durationState) {
+            console.log('no info');
           const previous = playInfo.find(
             (item) => item.animation === info.animation
           );
@@ -221,11 +226,12 @@ socket.on("pngs", (info) => {
             );
           }
         }
-
         else {
+            console.log('images');
           //reset index
           info.index = 0;
           //get right images
+          console.log(imagesList);
           const animationImages = imagesList.find(
             (item) => item.name === `animation-${info.animation}`
           );
