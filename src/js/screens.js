@@ -17,6 +17,8 @@ import { initScreen3 } from "./screen3.js";
 // });
 
 let selectedScreen;
+let totalLoadedImages = 0;
+let loadedImagesLimit = 0;
 //get which screen is selected from the querystring
 const queryString = window.location.search;
 console.log(queryString);
@@ -41,6 +43,11 @@ socket.on("animation-info", (info) => {
   animationInfo = info;
   console.log("the animation info:", animationInfo);
   loadImages(animationInfo);
+  for (let i = 0; i <animationInfo.animations.length; i++){
+    loadedImagesLimit +=animationInfo.animations[i].long;
+    loadedImagesLimit += animationInfo.animations[i].short;
+    console.log(loadedImagesLimit);
+}
 });
 
 let imagesList = [];
@@ -51,7 +58,7 @@ $canvas.height = window.innerHeight;
 const context = $canvas.getContext("2d");
 
 const showImage = (img) => {
-  // context.drawImage(img, window.innerWidth, window.innerHeight, 0, 0);
+  context.drawImage(img, window.innerWidth, window.innerHeight, 0, 0);
   img.style.display = "block";
 };
 
@@ -154,6 +161,10 @@ const loadImage = (src, id) => {
       console.log("loaded ", img, typeof img);
       // showImage(img);
       $images.appendChild(img);
+      totalLoadedImages++;
+      if (totalLoadedImages===loadedImagesLimit){
+        console.log("all images loaded");
+      }
     };
     img.onerror = reject;
     img.src = src;
@@ -164,24 +175,31 @@ const loadImage = (src, id) => {
 
 let imageIndex = 0;
 let previousIndex = 0;
+const $loading = document.getElementById('loading');
 const loop = () => {
-  if (imagesList.length > 0) {
-    if (imagesList[0].long.length > 0) {
-      console.log(imagesList[0].long.length);
-      showImage(imagesList[0].long[imageIndex]);
-      previousIndex = imageIndex - 1;
-      if (previousIndex < 0) {
-        previousIndex = imagesList[0].long.length - 1;
-      }
-      hideImage(imagesList[0].long[previousIndex]);
+ if (totalLoadedImages===loadedImagesLimit){
+    $loading.textContent = "done loading";
+     if (imagesList.length > 0) {
+       if (imagesList[0].long.length > 0) {
+         console.log(imagesList[0].long.length);
+         showImage(imagesList[0].long[imageIndex]);
+         previousIndex = imageIndex - 1;
+         if (previousIndex < 0) {
+           previousIndex = imagesList[0].long.length - 1;
+         }
+         hideImage(imagesList[0].long[previousIndex]);
 
-      console.log(imagesList[0].long[imageIndex], imageIndex);
-    }
-    imageIndex++;
-    if (imageIndex >= imagesList[0].long.length - 1) {
-      imageIndex = 0;
-    }
-  }
+         console.log(imagesList[0].long[imageIndex], imageIndex);
+       }
+       imageIndex++;
+       if (imageIndex >= imagesList[0].long.length - 1) {
+         imageIndex = 0;
+       }
+     }
+ }
+ else {
+    $loading.textContent = 'loading';
+ }
   window.requestAnimationFrame(loop);
 };
 
