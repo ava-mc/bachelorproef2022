@@ -56,6 +56,22 @@
   background-color: red;
 }
 
+#images {
+  position: absolute;
+  display: grid;
+  grid-row: 100%;
+  grid-column: 100%;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+#images img {
+  grid-row: 1;
+  grid-column: 1;
+}
+
 .hidden {
   display: none;
 }
+

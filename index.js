@@ -75,6 +75,13 @@ const animationList = [
     counter: 0,
     timer: null,
     ended: false,
+    arduinoEnd: "animation-end",
+    animationInfo: {
+      screen: 1,
+      animation: 1,
+      long: false,
+      short: false,
+    },
   },
   {
     startMessage: "2",
@@ -83,6 +90,13 @@ const animationList = [
     counter: 0,
     timer: null,
     ended: false,
+    arduinoEnd: "animation2-end",
+    animationInfo: {
+      screen: 1,
+      animation: 2,
+      long: false,
+      short: false,
+    },
   },
   {
     startMessage: "3",
@@ -91,6 +105,13 @@ const animationList = [
     counter: 0,
     timer: null,
     ended: false,
+    arduinoEnd: "animation3-end",
+    animationInfo: {
+      screen: 2,
+      animation: 1,
+      long: false,
+      short: false,
+    },
   },
 ];
 const currentNotes = [];
@@ -183,25 +204,44 @@ serialPort.list().then((ports) => {
           //decode the messages
           const line = data.toString("utf8");
           console.log("got word from arduino:", data.toString("utf8"));
-          if (line === "animation-end") {
-            io.emit("ended");
-            if (animationList[0].counter > 0) {
-              animationList[0].ended = true;
+          // if (line === "animation-end") {
+          //   io.emit("ended");
+          //   if (animationList[0].counter > 0) {
+          //     animationList[0].ended = true;
+          //   }
+          // }
+          // if (line === "animation2-end") {
+          //   io.emit("ended2");
+          //   if (animationList[1].counter > 0) {
+          //     animationList[1].ended = true;
+          //   }
+          // }
+          // if (line === "animation3-end") {
+          //   console.log("done");
+          //   io.emit("ended3");
+          //   if (animationList[2].counter > 0) {
+          //     animationList[2].ended = true;
+          //   }
+          // }
+
+          animationList.forEach((item, index) => {
+            if (line === item.arduinoEnd) {
+              // io.emit("ended");
+              //reset animationInfo
+              item.animationInfo.short = false;
+              item.animationInfo.long = false;
+
+              if (animationList[index].counter > 0) {
+                animationList[index].ended = true;
+                item.animationInfo.long = true;
+
+              }
+              else {
+                item.animationInfo.short = true;
+              }
+              io.emit('pngs', item.animationInfo);
             }
-          }
-          if (line === "animation2-end") {
-            io.emit("ended2");
-            if (animationList[1].counter > 0) {
-              animationList[1].ended = true;
-            }
-          }
-          if (line === "animation3-end") {
-            console.log("done");
-            io.emit("ended3");
-            if (animationList[2].counter > 0) {
-              animationList[2].ended = true;
-            }
-          }
+          })
 
           if (line === "button") {
             changeOutput();
@@ -380,6 +420,11 @@ if (input.getPortCount() > 0) {
             const index = animationList.indexOf(selectedAnimation);
             availableAnimationIndices.push(index);
             writeToArduino(selectedAnimation.endMessage);
+
+            //let screen know that long animation should stop
+            selectedAnimation.animationInfo.long = false;
+            io.emit("pngs", selectedAnimation.animationInfo);
+
           }
         }
 
@@ -431,6 +476,13 @@ io.on("connection", (socket) => {
     writeToArduino("1");
   });
 
+  socket.on('short-ended', info => {
+    console.log(info);
+    const animation = animationList.find(item => item.animationInfo.screen === info.screen && item.animationInfo.animation === info.animation);
+    console.log(animation);
+    //reset the info
+    animation.animationInfo.short = false;
+  })
   // socket.on("start2", () => {
   //   console.log("got message from screen");
   //   writeToArduino("2");
