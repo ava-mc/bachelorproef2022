@@ -19,15 +19,23 @@ import fs from 'fs';
 const amountOfScreens = 3;
 //function that adds the file amount for each animation folder
 const addFileAmount = async (dir, list, name, index) => {
-  fs.readdir(dir, (err, files) => {
+  let object = {};
+  object.name = `${name}-${index}`;
+  const longDir = `${dir}/long`;
+  const shortDir = `${dir}/short`;
+  fs.readdir(longDir, (err, files) => {
     let amount = files.length;
-    let object = {};
-    object.name = `${name}-${index}`;
-    object.amount = amount;
-    list.push(object);
+    object.long = amount;
     console.log(list);
     console.log('full', screenSequences);
   });
+  fs.readdir(shortDir, (err, files) => {
+    let amount = files.length;
+    object.short = amount;
+    console.log(list);
+    console.log("full", screenSequences);
+  });
+  list.push(object);
 };
 
 //function that gets amount of animation folders per screen
