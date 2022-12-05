@@ -83,19 +83,6 @@ const loadImages = async (animationInfo) => {
     imagesObject.name = currentAnimationFolder.name;
     imagesObject.long = [];
     imagesObject.short = [];
-    // for (let j = 0;j<currentAnimationFolder.long;j++){
-    //     let numberString = j.toString();
-    //     const numberlength = numberString.length;
-    //     let zeros = '';
-    //     for (let k = 0;k<5-numberlength;k++){
-    //         zeros += '0';
-    //     }
-    //     const image = await loadImage(
-    //       `${sourceStart}${screenName}/animation-${i + 1}/long/animation-${i + 1}-long_${zeros}${numberString}.png`
-    //     );
-    //     imagesObject.long.push(image);
-    //     console.log(imagesObject);
-    // }
     loadTypedImages(
       imagesObject,
       "long",
@@ -114,14 +101,6 @@ const loadImages = async (animationInfo) => {
     console.log(imagesList);
   }
 };
-
-// function preload() {
-//   loadImages();
-// }
-
-// function draw() {
-//     image(imagesList[0].long[0]);
-// }
 
 const loadTypedImages = async (
   object,
@@ -147,13 +126,6 @@ const loadTypedImages = async (
       `animation-${screenIndex + 1}-${name}_${zeros}${numberString}`
     );
     console.log(image);
-    // if (image.loaded) {
-    //     console.log(image);
-    //     console.log('image loaded');
-    //     showImage(image);
-    // }
-    object[name].push(image);
-    // console.log(object);
   }
 };
 
@@ -187,11 +159,6 @@ const loop = () => {
     $loading.textContent = "done loading";
     if (imagesList.length > 0) {
         playInfo.forEach(playItem => {
-            // const animationImages = imagesList.find(item=>item.name === `animation-${playItem.animation}`);
-            // const info = animationInfo.animations.find(
-            //   (item) => item.name === `animation-${playItem.animation}`
-            // );
-            // console.log(animationImages, playItem);
             const length = playItem.images.length;
             //hide all images
             playItem.images.forEach(img => hideImage(img));
@@ -215,27 +182,6 @@ const loop = () => {
             }
         }   
         })
-
-        // animationInfo.animations.forEach(animation => {
-
-        // })
-
-        // const animation = imagesList.find()
-    //   if (imagesList[0].long.length > 0) {
-    //     console.log(imagesList[0].long.length);
-    //     showImage(imagesList[0].long[imageIndex]);
-    //     previousIndex = imageIndex - 1;
-    //     if (previousIndex < 0) {
-    //       previousIndex = imagesList[0].long.length - 1;
-    //     }
-    //     hideImage(imagesList[0].long[previousIndex]);
-
-    //     console.log(imagesList[0].long[imageIndex], imageIndex);
-    //   }
-    //   imageIndex++;
-    //   if (imageIndex >= imagesList[0].long.length - 1) {
-    //     imageIndex = 0;
-    //   }
     }
   } else {
     $loading.textContent = "loading";
@@ -251,25 +197,6 @@ socket.on("pngs", (info) => {
     console.log(currentScreen)
     if (info.screen==currentScreen) {
         console.log('start right animation');
-
-        // const previous = playInfo.find(item => item.animation === info.animation);
-        // if (previous) {
-        //   //remove the previous play info for this animation, if there was info about it already
-        //   playInfo.splice(
-        //     playInfo.indexOf(previous),
-        //     1
-        //   );
-        // }
-        // //reset the playing info
-        // const currentInfo = animationInfo.animations.find(
-        //   (item) => item.name === `animation-${info.animation}`
-        // );
-        // if (currentInfo) {
-        //     currentInfo.playInfo.long.index = 0;
-        //     currentInfo.playInfo.short.index = 0;
-        //     currentInfo.playInfo.long.play = info.long;
-        //     currentInfo.playInfo.short.play = info.short;
-        // }
 
         //get the duration state
         let durationState;
