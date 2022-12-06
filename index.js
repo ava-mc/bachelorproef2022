@@ -93,7 +93,7 @@ const animationList = [
     arduinoEnd: "animation2-end",
     animationInfo: {
       screen: 2,
-      animation: 1,
+      animation: 2,
       long: false,
       short: false,
     },
@@ -107,8 +107,8 @@ const animationList = [
     ended: false,
     arduinoEnd: "animation3-end",
     animationInfo: {
-      screen: 3,
-      animation: 1,
+      screen: 1,
+      animation: 3,
       long: false,
       short: false,
     },
