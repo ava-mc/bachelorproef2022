@@ -179,6 +179,7 @@ const loop = (timestamp) => {
         console.log(deltaTime);
       // previousTime = time - ((time-previousTime) % interval);
     //   previousTime = time;
+    clearCanvas();
     previousTime = currentTime - (deltaTime % interval);
       if (totalLoadedImages === loadedImagesLimit) {
         $loading.textContent = "done loading";
@@ -188,7 +189,7 @@ const loop = (timestamp) => {
             //hide all images
             // playItem.images.forEach((img) => hideImage(img));
             // hideImage();
-            clearCanvas();
+            // clearCanvas();
 
             //only show current image
             const image = playItem.images[playItem.index];
@@ -208,6 +209,8 @@ const loop = (timestamp) => {
                 playInfo.splice(playInfo.indexOf(playItem), 1);
                 //we let server know the animation has ended
                 socket.emit("short-ended", playItem);
+                //clear canvas
+                clearCanvas();
               }
             }
           });
