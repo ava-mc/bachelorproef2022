@@ -92,8 +92,8 @@ const animationList = [
     ended: false,
     arduinoEnd: "animation2-end",
     animationInfo: {
-      screen: 1,
-      animation: 2,
+      screen: 2,
+      animation: 1,
       long: false,
       short: false,
     },
@@ -107,7 +107,7 @@ const animationList = [
     ended: false,
     arduinoEnd: "animation3-end",
     animationInfo: {
-      screen: 2,
+      screen: 3,
       animation: 1,
       long: false,
       short: false,
@@ -427,6 +427,8 @@ if (input.getPortCount() > 0) {
             //let screen know that long animation should stop
             if (selectedAnimation.animationInfo.long) {
               selectedAnimation.animationInfo.long = false;
+              console.log(selectedAnimation);
+              console.log('stop long animation', selectedAnimation.animationInfo);
               io.emit("pngs", selectedAnimation.animationInfo);
             }
 

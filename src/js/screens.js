@@ -64,13 +64,19 @@ $canvas.height = window.innerHeight;
 const context = $canvas.getContext("2d");
 
 const showImage = (img) => {
-//   context.drawImage(img, window.innerWidth, window.innerHeight, 0, 0);
-  img.style.display = "block";
+//   console.log("showImage", img);
+  context.drawImage(img, 0, 0, window.innerWidth, window.innerHeight);
+  //   img.style.display = "block";
 };
 
 const hideImage = (img) => {
-  img.style.display = "none";
+  //   img.style.display = "none";
+  context.clearRect(0, 0, $canvas.width, $canvas.height);
 };
+
+const clearCanvas = () => {
+    context.clearRect(0, 0, $canvas.width, $canvas.height);
+}
 
 const sourceStart = "./src/assets/pngseq/";
 //Load png sequences
@@ -136,59 +142,81 @@ const loadImage = (src, id) => {
   return new Promise((resolve, reject) => {
     let img = new Image();
     img.onload = () => {
-      resolve(img);
       console.log("loaded ", img, typeof img);
       // showImage(img);
-      $images.appendChild(img);
+      //   $images.appendChild(img);
       totalLoadedImages++;
       if (totalLoadedImages === loadedImagesLimit) {
         console.log("all images loaded");
       }
+      resolve(img);
     };
     img.onerror = reject;
     img.src = src;
-    img.id = id;
-    img.style.display = "none";
+    // img.id = id;
+    // img.style.display = "none";
   });
 };
 
 let imageIndex = 0;
 let previousIndex = 0;
 const $loading = document.getElementById("loading");
-const loop = () => {
-  if (totalLoadedImages === loadedImagesLimit) {
-    $loading.textContent = "done loading";
-    if (imagesList.length > 0) {
-        playInfo.forEach(playItem => {
+const fps = 30;
+const interval = Math.floor(1000 / fps); 
+let startTime = performance.now();
+let previousTime = startTime;
+
+let currentTime = 0;
+let deltaTime = 0;
+const loop = (timestamp) => {
+    // if (!previousTime) {
+    //     previousTime = time;
+    // }
+    
+    currentTime = timestamp;
+    deltaTime = currentTime - previousTime;
+    if (deltaTime > interval) {
+        console.log(deltaTime);
+      // previousTime = time - ((time-previousTime) % interval);
+    //   previousTime = time;
+    previousTime = currentTime - (deltaTime % interval);
+      if (totalLoadedImages === loadedImagesLimit) {
+        $loading.textContent = "done loading";
+        if (imagesList.length > 0) {
+          playInfo.forEach((playItem) => {
             const length = playItem.images.length;
             //hide all images
-            playItem.images.forEach(img => hideImage(img));
+            // playItem.images.forEach((img) => hideImage(img));
+            // hideImage();
+            clearCanvas();
 
             //only show current image
             const image = playItem.images[playItem.index];
             if (image) {
-                showImage(image);
+              showImage(image);
             }
             playItem.index++;
 
-            if (playItem.index>=length) {
-            //if it's the long state, we repeat the animation
-            if (playItem.long) {
-                    playItem.index = 0;
-                }
-            //if it's the short animations, we remove the animation from the playInfo list once it is done
-            if (playItem.short) {
-              //remove the previous play info for this animation, if there was info about it already
-              playInfo.splice(playInfo.indexOf(playItem), 1);
-              //we let server know the animation has ended 
-              socket.emit('short-ended', playItem);
+            if (playItem.index >= length) {
+              //if it's the long state, we repeat the animation
+              if (playItem.long) {
+                playItem.index = 0;
+              }
+              //if it's the short animations, we remove the animation from the playInfo list once it is done
+              if (playItem.short) {
+                //remove the previous play info for this animation, if there was info about it already
+                playInfo.splice(playInfo.indexOf(playItem), 1);
+                //we let server know the animation has ended
+                socket.emit("short-ended", playItem);
+              }
             }
-        }   
-        })
+          });
+        }
+      } else {
+        $loading.textContent = "loading";
+      }
     }
-  } else {
-    $loading.textContent = "loading";
-  }
+  
   window.requestAnimationFrame(loop);
 };
 
@@ -197,54 +225,48 @@ window.requestAnimationFrame(loop);
 
 let playInfo = [];
 socket.on("pngs", (info) => {
-    console.log(currentScreen)
-    if (info.screen==currentScreen) {
-        console.log(info);
-        console.log('start right animation');
+  console.log(currentScreen);
+  if (info.screen == currentScreen) {
+    // console.log(info);
+    // console.log("start right animation");
 
-        //get the duration state
-        let durationState;
-        if (info.long) {
-            durationState = 'long';
-        }
-        if (info.short) {
-            durationState = 'short';
-        }
+    //get the duration state
+    let durationState;
+    if (info.long) {
+      durationState = "long";
+    }
+    if (info.short) {
+      durationState = "short";
+    }
 
-        //if no state is true, we remove the animation info from the playing list and hide the images
-        if (!durationState) {
-            console.log('no info');
-          const previous = playInfo.find(
-            (item) => item.animation === info.animation
-          );
-          
-          if (previous) {
-            previous.images.forEach((img) => hideImage(img));
-            playInfo.splice(
-              playInfo.indexOf(previous),
-              1
-            );
-          }
-        }
-        else {
-            console.log('images');
-          //reset index
-          info.index = 0;
-          //get right images
-          console.log(imagesList);
-          const animationImages = imagesList.find(
-            (item) => item.name === `animation-${info.animation}`
-          );
-          info.images = animationImages[durationState];
-          playInfo.push(info);
-          
-        }
-        console.log(playInfo);
-        
+    //if no state is true, we remove the animation info from the playing list and hide the images
+    if (!durationState) {
+    //   console.log("no info");
+      const previous = playInfo.find(
+        (item) => item.animation === info.animation
+      );
+
+      if (previous) {
+        // previous.images.forEach((img) => hideImage(img));
+        playInfo.splice(playInfo.indexOf(previous), 1);
+      }
+     clearCanvas();
+    } else {
+    //   console.log("images");
+      //reset index
+      info.index = 0;
+      //get right images
+    //   console.log(imagesList);
+      const animationImages = imagesList.find(
+        (item) => item.name === `animation-${info.animation}`
+      );
+      info.images = animationImages[durationState];
+      playInfo.push(info);
     }
-    else {
-        console.log('ignore');
-    }
+    console.log(playInfo);
+  } else {
+    console.log("ignore");
+  }
 });
 
 //catch server response of own chosen screen
