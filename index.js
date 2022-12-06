@@ -79,8 +79,8 @@ const animationList = [
     animationInfo: {
       screen: 1,
       animation: 1,
-      long: false,
-      short: false,
+      // long: false,
+      // short: false,
     },
   },
   {
@@ -94,8 +94,8 @@ const animationList = [
     animationInfo: {
       screen: 2,
       animation: 2,
-      long: false,
-      short: false,
+      // long: false,
+      // short: false,
     },
   },
   {
@@ -109,8 +109,8 @@ const animationList = [
     animationInfo: {
       screen: 1,
       animation: 3,
-      long: false,
-      short: false,
+      // long: false,
+      // short: false,
     },
   },
 ];
@@ -230,18 +230,23 @@ serialPort.list().then((ports) => {
             if (line === item.arduinoEnd) {
               // io.emit("ended");
               //reset animationInfo
-              item.animationInfo.short = false;
-              item.animationInfo.long = false;
+              // item.animationInfo.short = false;
+              // item.animationInfo.long = false;
 
               if (animationList[index].counter > 0) {
                 animationList[index].ended = true;
-                item.animationInfo.long = true;
+                // item.animationInfo.long = true;
+                io.emit("pngs", {...item.animationInfo, long:true});
 
               }
               else {
-                item.animationInfo.short = true;
+                // item.animationInfo.short = true;
+                io.emit("pngs", {
+                  ...item.animationInfo,
+                  short: true,
+                });
               }
-              io.emit('pngs', item.animationInfo);
+              // io.emit('pngs', item.animationInfo);
             }
           })
 
@@ -425,12 +430,13 @@ if (input.getPortCount() > 0) {
             writeToArduino(selectedAnimation.endMessage);
 
             //let screen know that long animation should stop
-            if (selectedAnimation.animationInfo.long) {
-              selectedAnimation.animationInfo.long = false;
+            // if (selectedAnimation.animationInfo.long) {
+              // selectedAnimation.animationInfo.long = false;
               console.log(selectedAnimation);
               console.log('stop long animation', selectedAnimation.animationInfo);
-              io.emit("pngs", selectedAnimation.animationInfo);
-            }
+              // io.emit("pngs", selectedAnimation.animationInfo);
+              io.emit('pngs', {...selectedAnimation.animationInfo, long:false});
+            // }
 
           }
         }
@@ -488,7 +494,7 @@ io.on("connection", (socket) => {
     const animation = animationList.find(item => item.animationInfo.screen === info.screen && item.animationInfo.animation === info.animation);
     console.log(animation);
     //reset the info
-    animation.animationInfo.short = false;
+    // animation.animationInfo.short = false;
   })
   // socket.on("start2", () => {
   //   console.log("got message from screen");
