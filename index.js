@@ -125,11 +125,13 @@ for (let i = 0; i < animationList.length; i++) {
 
 
 //Big keyboard at home
-const midiType = [144];
-const endSignal = 0;
+// const midiType = [144];
+// const endSignal = 0;
 //Small keyboard
-// const midiType = [128, 144];
-// const endSignal = 127;
+const midiType = [128, 144];
+const endSignal = 127;
+
+const endSignalType = midiType[0];
 
 let playScreenSaver = true;
 let screenSaverTimer;
@@ -267,7 +269,8 @@ output.openPort(1);
 const changeOutput = () => {
   //make sure output message is stopped with current output channel
   currentNotes.forEach(note=> {
-    output.sendMessage([note.type, note.note, endSignal]);
+    // output.sendMessage([end, note.note, endSignal]);
+    output.sendMessage([endSignalType, note.note, endSignal]);
   })
 
   output.closePort(outputOptions[selectedOutput]);
