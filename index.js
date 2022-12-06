@@ -269,7 +269,7 @@ serialPort.list().then((ports) => {
 const output = new midi.Output();
 const outputOptions = [];
 let selectedOutput = 0;
-output.openPort(1);
+// output.openPort(0);
 
 const changeOutput = () => {
   //make sure output message is stopped with current output channel
@@ -335,6 +335,7 @@ const getBrightnessCode = (number) => {
 
 const input = new midi.Input();
 const timeLimit = 500;
+let inputPort = 0;
 
 //only try to open midi port when there is at least one port available
 if (input.getPortCount() > 0) {
@@ -343,7 +344,16 @@ if (input.getPortCount() > 0) {
   // Get the name of a specified input port.
   // input.getPortName(0);
   for (let i=0;i<input.getPortCount();i++){
-    console.log(input.getPortName(i));
+    
+    console.log(input.getPortName(i), typeof input.getPortName(i));
+    if (!input.getPortName(i).includes('Test')) {
+      inputPort = i;
+      console.log('found it',input.getPortName(i), inputPort );
+    }
+    // else {
+    //   inputPort = i;
+    //   console.log('not',input.getPortName(i), inputPort );
+    // }
   }
   for (let i = 0; i < output.getPortCount(); i++) {
     console.log('output', output.getPortName(i));
@@ -351,6 +361,10 @@ if (input.getPortCount() > 0) {
       console.log('this works', output.getPortName(i));
       outputOptions.push(i);
     }
+  }
+  if (outputOptions.length>0){
+    console.log('output opened', output.getPortName(outputOptions[selectedOutput]));
+    output.openPort(outputOptions[selectedOutput]);
   }
   // output.openPort(1);
   input.on("message", (deltaTime, message) => {
@@ -449,7 +463,9 @@ if (input.getPortCount() > 0) {
     }
   });
   // Open the first available input port.
-  input.openPort(0);
+  // input.openPort(0);
+  console.log('port',inputPort);
+  input.openPort(inputPort);
 }
 
 //function to write a message to arduino
