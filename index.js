@@ -339,26 +339,14 @@ let inputPort = 0;
 
 //only try to open midi port when there is at least one port available
 if (input.getPortCount() > 0) {
-  console.log(input.getPortCount());
-  console.log(output.getPortCount());
   // Get the name of a specified input port.
-  // input.getPortName(0);
   for (let i=0;i<input.getPortCount();i++){
-    
-    console.log(input.getPortName(i), typeof input.getPortName(i));
     if (!input.getPortName(i).includes('Test')) {
       inputPort = i;
-      console.log('found it',input.getPortName(i), inputPort );
     }
-    // else {
-    //   inputPort = i;
-    //   console.log('not',input.getPortName(i), inputPort );
-    // }
   }
   for (let i = 0; i < output.getPortCount(); i++) {
-    console.log('output', output.getPortName(i));
     if (output.getPortName(i).includes('Test')) {
-      console.log('this works', output.getPortName(i));
       outputOptions.push(i);
     }
   }
@@ -366,9 +354,8 @@ if (input.getPortCount() > 0) {
     console.log('output opened', output.getPortName(outputOptions[selectedOutput]));
     output.openPort(outputOptions[selectedOutput]);
   }
-  // output.openPort(1);
   input.on("message", (deltaTime, message) => {
-    console.log(output)
+    console.log(output);
     output.sendMessage(message);
     // The message is an array of numbers corresponding to the MIDI bytes:
     //   [status, data1, data2]
@@ -462,9 +449,7 @@ if (input.getPortCount() > 0) {
       }
     }
   });
-  // Open the first available input port.
-  // input.openPort(0);
-  console.log('port',inputPort);
+  // Open the input port of the piano
   input.openPort(inputPort);
 }
 
