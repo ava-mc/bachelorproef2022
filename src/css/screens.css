@@ -31,10 +31,10 @@
 }
 
 .screensaver span {
-  transition: opacity var(--transition-length) ease-in-out;
-  -moz-transition: opacity var(--transition-length) ease-in-out;
+  /* transition: opacity var(--transition-length) ease-in-out;
+  -moz-transition: opacity var(--transition-length) ease-in-out; */
   display: none;
-  opacity: 0;
+  /* opacity: 0; */
   font-size: 20rem;
   font-family:Arial, Helvetica, sans-serif;
   font-weight: bold;
@@ -42,11 +42,15 @@
 }
 
 .screensaver .opacity-up {
-  opacity: 1;
+  /* opacity: 1; */
+  animation-name: up;
+  animation-duration:var(--transition-length);
 }
 
 .screensaver .opacity-down {
-  opacity: 0;
+  /* opacity: 0; */
+  animation-name: down;
+  animation-duration:var(--transition-length);
 }
 
 .screen1 .screensaver span:nth-of-type(1) {
@@ -54,12 +58,14 @@
   top: 50%;
   right: 5%;
   transform: translateY(-50%);
+  opacity: 0;
 }
 
 .screen2 .screensaver span:nth-of-type(2) {
   display: inline-block;
   top: 20%;
   left: 5%;
+  opacity: 0;
 }
 
 .screen3 .screensaver span:nth-of-type(3) {
@@ -67,6 +73,7 @@
   bottom: 5%;
   right: 50%;
   transform: translateY(50%);
+  opacity: 0;
 }
 
 .animate {
@@ -134,3 +141,13 @@ canvas {
   display: none;
 }
 
+
+@keyframes up {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+@keyframes down {
+  from {opacity: .9;}
+  to {opacity: 0;}
+}
