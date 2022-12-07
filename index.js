@@ -37,79 +37,79 @@ for (let i = 0; i < animationList.length; i++) {
   availableAnimationIndices.push(i);
 }
 
-let path = "";
-let arduinoSerialPort = "";
-// check at which port the arduino is selected, to set up our serial communication
-serialPort.list().then((ports) => {
-  let done = false;
-  let count = 0;
-  let allports = ports.length;
-  let pm;
-  ports.forEach(function (port) {
-    count = count + 1;
-    pm = port.manufacturer;
-    console.log(pm);
+// let path = "";
+// let arduinoSerialPort = "";
+// // check at which port the arduino is selected, to set up our serial communication
+// serialPort.list().then((ports) => {
+//   let done = false;
+//   let count = 0;
+//   let allports = ports.length;
+//   let pm;
+//   ports.forEach(function (port) {
+//     count = count + 1;
+//     pm = port.manufacturer;
+//     console.log(pm);
 
-    if (typeof pm !== "undefined") {
-      if (pm.toLowerCase().includes("arduino")) path = port.path;
-      arduinoSerialPort = new serialport.SerialPort({ path, baudRate: 9600 });
-      arduinoSerialPort.on("open", function () {
-        console.log(`connected! arduino is now connected at port ${path}`);
+//     if (typeof pm !== "undefined") {
+//       if (pm.toLowerCase().includes("arduino")) path = port.path;
+//       arduinoSerialPort = new serialport.SerialPort({ path, baudRate: 9600 });
+//       arduinoSerialPort.on("open", function () {
+//         console.log(`connected! arduino is now connected at port ${path}`);
 
-        //let arduino know, we can receive messages now
-        writeToArduino('z');
-      });
-      //reading the signal from the arduino
-      if (arduinoSerialPort) {
-        arduinoSerialPort.on("data", (data) => {
-          //decode the messages
-          const line = data.toString("utf8");
-          console.log("got word from arduino:", data.toString("utf8"));
+//         //let arduino know, we can receive messages now
+//         writeToArduino('z');
+//       });
+//       //reading the signal from the arduino
+//       if (arduinoSerialPort) {
+//         arduinoSerialPort.on("data", (data) => {
+//           //decode the messages
+//           const line = data.toString("utf8");
+//           console.log("got word from arduino:", data.toString("utf8"));
 
-          const messageString = "screensavertime";
-          if (line.includes(messageString)) {
-            console.log('timer', line, line.substring(messageString.length) );
-            screensaverTime = parseInt(
-              line.substring(messageString.length)
-            )/1000;
-          }
+//           const messageString = "screensavertime";
+//           if (line.includes(messageString)) {
+//             console.log('timer', line, line.substring(messageString.length) );
+//             screensaverTime = parseInt(
+//               line.substring(messageString.length)
+//             )/1000;
+//           }
 
-          if (line == 'opacity-up') {
-            io.emit('opacity-change', 'up');
-          }
-          if (line == "opacity-down") {
-            io.emit("opacity-change", "down");
-          }
+//           if (line == 'opacity-up') {
+//             io.emit('opacity-change', 'up');
+//           }
+//           if (line == "opacity-down") {
+//             io.emit("opacity-change", "down");
+//           }
 
-          animationList.forEach((item, index) => {
-            if (line === item.arduinoEnd) {
-              if (animationList[index].counter > 0) {
-                animationList[index].ended = true;
-                io.emit("pngs", {...item.animationInfo, long:true});
+//           animationList.forEach((item, index) => {
+//             if (line === item.arduinoEnd) {
+//               if (animationList[index].counter > 0) {
+//                 animationList[index].ended = true;
+//                 io.emit("pngs", {...item.animationInfo, long:true});
 
-              }
-              else {
-                io.emit("pngs", {
-                  ...item.animationInfo,
-                  short: true,
-                });
-              }
-            }
-          })
+//               }
+//               else {
+//                 io.emit("pngs", {
+//                   ...item.animationInfo,
+//                   short: true,
+//                 });
+//               }
+//             }
+//           })
 
-          if (line === "button") {
-            changeOutput();
-          }
-        });
-      }
-      done = true;
-    }
+//           if (line === "button") {
+//             changeOutput();
+//           }
+//         });
+//       }
+//       done = true;
+//     }
 
-    if (count === allports && done === false) {
-      console.log(`can't find any arduino`);
-    }
-  });
-});
+//     if (count === allports && done === false) {
+//       console.log(`can't find any arduino`);
+//     }
+//   });
+// });
 
 
 // Set up a new output.
@@ -365,3 +365,90 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Our app is running on port ${PORT}`);
 });
+
+
+//ARDUINO LOGIC
+let arduinoSerialPort = "";
+const setUpArduino = () => {
+  let path = "";
+  // check at which port the arduino is selected, to set up our serial communication
+  serialPort.list().then((ports) => {
+    let done = false;
+    let count = 0;
+    let allports = ports.length;
+    let pm;
+    ports.forEach(function (port) {
+      count = count + 1;
+      pm = port.manufacturer;
+      console.log(pm);
+
+      if (typeof pm !== "undefined") {
+        if (pm.toLowerCase().includes("arduino")) path = port.path;
+        arduinoSerialPort = new serialport.SerialPort({ path, baudRate: 9600 });
+        arduinoSerialPort.on("open", () => {
+          console.log(`connected! arduino is now connected at port ${path}`);
+          //let arduino know, we can receive messages now
+          writeToArduino("z");
+          arduinoReadingInit();
+        });
+        done = true;
+      }
+
+      if (count === allports && done === false) {
+        console.log(`can't find any arduino`);
+      }
+    });
+  });
+}
+
+const arduinoReadingInit = () => {
+  //reading the signal from the arduino
+  if (arduinoSerialPort) {
+    arduinoSerialPort.on("data", (data) => {
+      //decode the messages
+      const line = data.toString("utf8");
+      console.log("got word from arduino:", data.toString("utf8"));
+
+      //Get info from Arduino about the timing of the screensaver animation
+      const messageString = "screensavertime";
+      if (line.includes(messageString)) {
+        console.log("timer", line, line.substring(messageString.length));
+        screensaverTime = parseInt(line.substring(messageString.length)) / 1000;
+      }
+
+      //let browser know about opacity animation for screensaver
+      if (line == "opacity-up") {
+        io.emit("opacity-change", "up");
+      }
+      if (line == "opacity-down") {
+        io.emit("opacity-change", "down");
+      }
+
+      //Which animations should be started on the screen
+      animationList.forEach((item, index) => {
+        if (line === item.arduinoEnd) {
+          if (animationList[index].counter > 0) {
+            animationList[index].ended = true;
+            io.emit("pngs", { ...item.animationInfo, long: true });
+          } else {
+            io.emit("pngs", {
+              ...item.animationInfo,
+              short: true,
+            });
+          }
+        }
+      });
+
+      //change the ouput sound on button press
+      if (line === "button") {
+        changeOutput();
+      }
+    });
+  }
+}
+
+const init = () => {
+  setUpArduino();
+};
+
+init();
