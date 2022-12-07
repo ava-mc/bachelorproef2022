@@ -63,19 +63,27 @@ $canvas.width = window.innerWidth;
 $canvas.height = window.innerHeight;
 const context = $canvas.getContext("2d");
 
+window.addEventListener('resize', () => {
+  $canvas.width = window.innerWidth;
+  $canvas.height = window.innerHeight;
+})
+
 const showImage = (img) => {
 //   console.log("showImage", img);
   context.drawImage(img, 0, 0, window.innerWidth, window.innerHeight);
-  //   img.style.display = "block";
+    // img.style.display = "block";
+    // img.style.opacity = 1;
 };
 
 const hideImage = (img) => {
-  //   img.style.display = "none";
-  context.clearRect(0, 0, $canvas.width, $canvas.height);
+    // img.style.display = "none";
+    // img.style.opacity = 0;
+  // context.clearRect(0, 0, $canvas.width, $canvas.height);
 };
 
 const clearCanvas = () => {
     context.clearRect(0, 0, $canvas.width, $canvas.height);
+    // imagesList.forEach((img)=>hideImage(img));
 }
 
 const sourceStart = "./src/assets/pngseq/";
@@ -144,10 +152,15 @@ const loadImage = (src, id) => {
     img.onload = () => {
       console.log("loaded ", img, typeof img);
       // showImage(img);
-      //   $images.appendChild(img);
+        // $images.appendChild(img);
+        // hideImage(img);
       totalLoadedImages++;
       if (totalLoadedImages === loadedImagesLimit) {
         console.log("all images loaded");
+        //start the loop
+        window.requestAnimationFrame(loop);
+
+        // setInterval(loop, interval)
       }
       resolve(img);
     };
@@ -184,7 +197,9 @@ const loop = (timestamp) => {
       if (totalLoadedImages === loadedImagesLimit) {
         $loading.textContent = "done loading";
         if (imagesList.length > 0) {
-          playInfo.forEach((playItem) => {
+          // playInfo.forEach((playItem) => {
+            for (let j=0; j<playInfo.length; j++){
+              const playItem = playInfo[j];
             const length = playItem.images.length;
             //hide all images
             // playItem.images.forEach((img) => hideImage(img));
@@ -193,9 +208,9 @@ const loop = (timestamp) => {
 
             //only show current image
             const image = playItem.images[playItem.index];
-            if (image) {
+            // if (image) {
               showImage(image);
-            }
+            // }
             playItem.index++;
 
             if (playItem.index >= length) {
@@ -213,7 +228,8 @@ const loop = (timestamp) => {
                 clearCanvas();
               }
             }
-          });
+          }
+          // );
         }
       } else {
         $loading.textContent = "loading";
@@ -223,7 +239,7 @@ const loop = (timestamp) => {
   window.requestAnimationFrame(loop);
 };
 
-window.requestAnimationFrame(loop);
+// window.requestAnimationFrame(loop);
 // setInterval(loop, 1000);
 
 let playInfo = [];
@@ -340,3 +356,40 @@ socket.on("screen disconnected", (selectedScreens) => {
     disableScreen.classList.add("screen-chosen");
   });
 });
+
+
+socket.on('screensaverTime', time => {
+  // set css variable for transition time of screensaver text
+  document.documentElement.style.setProperty(
+    "--transition-length",
+    `${time}s`
+  );
+  // console.log(document.documentElement.style.getProperty("--transition-length"));
+  console.log('got screensaver time', time);
+})
+
+const $screenSaver = document.querySelector('.screensaver');
+socket.on('screensaverStart',()=> {
+  $screenSaver.classList.remove('hidden');
+});
+socket.on("screensaverStop", () => {
+  $screenSaver.classList.add("hidden");
+  const $screensaverSpan = document
+    .querySelector(`.screen${currentScreen}`)
+    .querySelector(`span:nth-of-type(${currentScreen})`);
+    $screensaverSpan.classList.remove("opacity-up");
+    $screensaverSpan.classList.add("opacity-down");
+});
+
+
+socket.on('opacity-change', type => {
+  const $screensaverSpan = document.querySelector(`.screen${currentScreen}`).querySelector(`span:nth-of-type(${currentScreen})`);
+  if (type=='up') {
+    $screensaverSpan.classList.add("opacity-up");
+    $screensaverSpan.classList.remove("opacity-down");
+  }
+  else {
+    $screensaverSpan.classList.remove("opacity-up");
+    $screensaverSpan.classList.add("opacity-down");
+  }
+})

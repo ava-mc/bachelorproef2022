@@ -39,8 +39,8 @@ unsigned long currentTime;
 const unsigned long period = 20;
 
 bool playScreenSaver = false;
-unsigned long screensaverStart = 0;
-unsigned long screensaverDelay = 8000;
+// unsigned long screensaverStart = 0;
+// unsigned long screensaverDelay = 8000;
 bool screenSaverTimer = false;
 int fadingDelay = 50;
 unsigned long fadingStart = 0;
@@ -84,6 +84,8 @@ unsigned long debounceDelay = 50;
 
 char test[1];
 
+int screensaverLength = fadingDelay * (fadingMax - fadingMin);
+
 void setup() {
   NeoPixel.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
   Serial.begin(9600); // Starts the serial communication
@@ -95,6 +97,8 @@ void setup() {
 
   //BUTTON
   pinMode(buttonPin, INPUT);
+  
+
 }
 
 void loop() {
@@ -119,6 +123,13 @@ void loop() {
     //     currentBrightness = i;
     //   }
     // }
+
+    if (incomingByte=='z') {
+      // Serial.print("screensavertime" +(fadingDelay*(fadingMax-fadingMin)));
+      // Serial.print((fadingDelay*(fadingMax-fadingMin)));
+      Serial.print("screensavertime" + String(screensaverLength));
+    }
+
      for (int i = 0; i < sizeof(BrightnessCodes);i++){
       if (incomingByte==BrightnessCodes[i]){
         currentBrightness = (i+1)*8;
@@ -155,7 +166,7 @@ void loop() {
 
      if (incomingByte =='s') {
       playScreenSaver = true;
-      screensaverStart = currentTime;
+      // screensaverStart = currentTime;
       fadingStart = currentTime;
       fadingPoint = 0;
       fadingSwitch = true;
@@ -177,6 +188,15 @@ if (playScreenSaver == true) {
             NeoPixel.show();
           }
           }
+
+          //let server know when to switch the transition on the screen
+          // if (fadingPoint == fadingMax) {
+          //   Serial.print("opacity-up");
+          // }
+          if (fadingPoint == fadingMin&&fadingSwitch==true) {
+            Serial.print("opacity-up");
+          }
+
         if (fadingPoint<20&&fadingPoint>0) {
           fadingAmount = 1;
         }
@@ -189,6 +209,7 @@ if (playScreenSaver == true) {
             }
             if (fadingPoint>= fadingMax) {
               fadingSwitch = false;
+              Serial.print("opacity-down");
             }
           }
           else {
