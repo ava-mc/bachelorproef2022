@@ -37,11 +37,6 @@ const getScreenSelection = () => {
     socket.on("screen choice", (chosenScreen) => {
       console.log("this client chose screen ", chosenScreen);
       currentScreen = chosenScreen;
-
-      //now we can get the related screensaver element to the current screen
-      // $screensaverSpan = document
-      //   .querySelector(`.screen${currentScreen}`)
-      //   .querySelector(`span:nth-of-type(${currentScreen})`);
     });
 
     //remove links when all screens have been chosen
@@ -177,7 +172,9 @@ const pngSequenceInit = () => {
         const animationImages = imagesList.find(
           (item) => item.name === `animation-${info.animation}`
         );
-        info.images = animationImages[durationState];
+        if (animationImages){
+          info.images = animationImages[durationState];
+        }
         //add the new animation info to the list of currently playing animaitions
         playInfo.push(info);
       }
@@ -259,15 +256,18 @@ const screenSaverInfoInit = () => {
 
   //when screensaver stops, text should be gone
   socket.on("screensaverStop", () => {
+    if (currentScreen){
     const $screensaverSpan = document
       .querySelector(`.screen${currentScreen}`)
       .querySelector(`span:nth-of-type(${currentScreen})`);
     $screensaverSpan.classList.remove("opacity-up");
     $screensaverSpan.classList.remove("opacity-down");
+    }
   });
 
   //show right opacity animation in time with LED animation
   socket.on("opacity-change", (type) => {
+    if (currentScreen){
     const $screensaverSpan = document
       .querySelector(`.screen${currentScreen}`)
       .querySelector(`span:nth-of-type(${currentScreen})`);
@@ -278,6 +278,7 @@ const screenSaverInfoInit = () => {
       $screensaverSpan.classList.remove("opacity-up");
       $screensaverSpan.classList.add("opacity-down");
     }
+  }
   });
 }
 
