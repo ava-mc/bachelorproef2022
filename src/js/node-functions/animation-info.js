@@ -40,6 +40,10 @@ export const animationList = [
   },
 ];
 
+export const availableAnimationIndices = [];
+for (let i = 0; i < animationList.length; i++) {
+  availableAnimationIndices.push(i);
+}
 
 const brightnessList = [
   "A",

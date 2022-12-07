@@ -1,12 +1,7 @@
 import express from "express";
 import http from "http";
-const app = express();
-const server = http.createServer(app);
 import { Server } from "socket.io";
-export const io = new Server(server);
 import serialport from "serialport";
-const serialPort = serialport.SerialPort;
-
 import * as filepath from "path";
 import { fileURLToPath } from "url";
 
@@ -25,10 +20,16 @@ import {
 import {
   animationList,
   getBrightnessCode,
+  availableAnimationIndices
 } from "./src/js/node-functions/animation-info.js";
 
-let screensaverTime;
+const app = express();
+const server = http.createServer(app);
+export const io = new Server(server);
+const serialPort = serialport.SerialPort;
 
+
+//////// PNG SEQUENCES  //////////
 //count the amount of png sequences and number of pngs per sequence for each screen
 const amountOfScreens = 3;
 const screenSequences = [];
@@ -39,18 +40,14 @@ const getPngSequences = async () => {
   }
 };
 
-const currentNotes = [];
-const availableAnimationIndices = [];
-for (let i = 0; i < animationList.length; i++) {
-  availableAnimationIndices.push(i);
-}
 
-
-// MIDI OUTPUT
+/////// MIDI LOGIC ///////
 let output;
 let selectedOutput = 0;
 let outputOptions;
+const currentNotes = [];
 
+//MIDI OUTPUT
 //setting up MIDI output
 const setupMIDIOutput = () => {
   const output = new midi.Output();
@@ -245,92 +242,82 @@ const handleMidiInput = (deltaTime, message) => {
     }
   }
 
-//keep track of which screens are chosen
-let chosenScreens = [];
-const screens = { 1: null, 2: null, 3: null };
 
-io.on("connection", (socket) => {
-  socket.on("start", () => {
-    console.log("got message from screen");
-    writeToArduino("1");
-  });
+/////// WEBSOCKETS ///////
+const websocketInit = () => {
+  //keep track of which screens are chosen
+  let chosenScreens = [];
+  const screens = { 1: null, 2: null, 3: null };
 
-  socket.on("short-ended", (info) => {
-    console.log(info);
-    const animation = animationList.find(
-      (item) =>
-        item.animationInfo.screen === info.screen &&
-        item.animationInfo.animation === info.animation
-    );
-    console.log(animation);
-  });
-
-  //automatically disconnect if there are officially 3 screens selected, and new screen tries to connect
-  if (chosenScreens.length == 3) {
-    socket.emit("full");
-    socket.disconnect();
-  }
-  //if there are not yet 3 screens selected
-  else {
-    //if a screen disconnects
-    socket.on("disconnect", () => {
-      //check if this screen was selected
-      const disconnectedScreen = getObjKey(screens, socket.id);
-      if (disconnectedScreen) {
-        //remove the disconnected socket from the screens object
-        screens[disconnectedScreen] = null;
-      }
-      //remove the disconnected screen from the chosen screens array
-      chosenScreens = chosenScreens.filter(
-        (screen) => screen !== parseInt(disconnectedScreen)
-      );
-      //pass all screens to the client, so that we can open up that choice again for selecting screens on the disconnected screen
-      io.emit("screen disconnected", chosenScreens);
-    });
-
-    //when a screen wants to connect
-    socket.on("screen choice", (chosenScreen) => {
-      chosenScreens.push(chosenScreen);
-
-      //check if the socket that sends the screen choice has already chosen another screen
-      const previousScreen = getObjKey(screens, socket.id);
-      if (previousScreen) {
-        screens[chosenScreen] = socket.id;
-        screens[previousScreen] = null;
+  io.on("connection", (socket) => {
+    //automatically disconnect if there are officially 3 screens selected, and new screen tries to connect
+    if (chosenScreens.length == 3) {
+      socket.emit("full");
+      socket.disconnect();
+    }
+    //if there are not yet 3 screens selected
+    else {
+      //if a screen disconnects
+      socket.on("disconnect", () => {
+        //check if this screen was selected
+        const disconnectedScreen = getObjKey(screens, socket.id);
+        if (disconnectedScreen) {
+          //remove the disconnected socket from the screens object
+          screens[disconnectedScreen] = null;
+        }
+        //remove the disconnected screen from the chosen screens array
         chosenScreens = chosenScreens.filter(
-          (screen) => screen !== parseInt(previousScreen)
+          (screen) => screen !== parseInt(disconnectedScreen)
         );
-      } else {
-        screens[chosenScreen] = socket.id;
-      }
+        //pass all screens to the client, so that we can open up that choice again for selecting screens on the disconnected screen
+        io.emit("screen disconnected", chosenScreens);
+      });
 
-      //emit their chosen screen to the sender
-      socket.emit("screen choice", chosenScreen);
+      //when a screen wants to connect
+      socket.on("screen choice", (chosenScreen) => {
+        chosenScreens.push(chosenScreen);
 
-      //send the right animation info based on the screen choice
-      socket.emit(
-        "animation-info",
-        screenSequences.find(
-          (item) => item.name.charAt(item.name.length - 1) == chosenScreen
-        )
-      );
+        //check if the socket that sends the screen choice has already chosen another screen
+        const previousScreen = getObjKey(screens, socket.id);
+        if (previousScreen) {
+          screens[chosenScreen] = socket.id;
+          screens[previousScreen] = null;
+          chosenScreens = chosenScreens.filter(
+            (screen) => screen !== parseInt(previousScreen)
+          );
+        } else {
+          screens[chosenScreen] = socket.id;
+        }
 
-      //let other clients know that a new screen choice was made and which screens ar currently already chosen and thus unavailable
-      io.emit("screen chosen", chosenScreens);
-      if (chosenScreens.length == 3) {
-        // startInstallation = true;
+        //emit their chosen screen to the sender
+        socket.emit("screen choice", chosenScreen);
 
-        //let browser know about the screensaverTime once all screens are selected
-        io.emit("screensaverTime", screensaverTime);
+        //send the right animation info based on the screen choice
+        socket.emit(
+          "animation-info",
+          screenSequences.find(
+            (item) => item.name.charAt(item.name.length - 1) == chosenScreen
+          )
+        );
 
-        //start the screensaver timer for the first time
-        startScreensaverTimer();
-      }
-    });
-  }
-});
+        //let other clients know that a new screen choice was made and which screens ar currently already chosen and thus unavailable
+        io.emit("screen chosen", chosenScreens);
+        if (chosenScreens.length == 3) {
+          // startInstallation = true;
+
+          //let browser know about the screensaverTime once all screens are selected
+          io.emit("screensaverTime", screensaverTime);
+
+          //start the screensaver timer for the first time
+          startScreensaverTimer();
+        }
+      });
+    }
+  });
+}
 
 //ARDUINO LOGIC
+let screensaverTime;
 let arduinoSerialPort = "";
 const setUpArduino = () => {
   let path = "";
@@ -445,6 +432,7 @@ const init = () => {
   initApp();
   setupMIDIInput();
   output = setupMIDIOutput();
+  websocketInit();
 };
 
 init();
