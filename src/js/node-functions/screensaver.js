@@ -7,9 +7,6 @@ const screenSaverMaxWait = 10;
 
 const showScreenSaver = () => {
   writeToArduino("s");
-
-  //let browser know it has started
-  io.emit("screensaverStart");
 };
 
 export const startScreensaverTimer = () => {
