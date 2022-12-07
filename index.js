@@ -15,7 +15,7 @@ import { getRandomInt, getObjKey } from "./src/js/lib.js";
 import { getAmountOfAnimations } from "./src/js/node-functions/file-counting.js";
 import {startScreensaverTimer, stopScreenSaverTimer} from './src/js/node-functions/screensaver.js';
 import {endSignal, endSignalType, midiType} from './src/js/node-functions/midi-info.js';
-import {animationList} from './src/js/node-functions/animation-list.js';
+import {animationList, getBrightnessCode} from './src/js/node-functions/animation-info.js';
 
 let screensaverTime;
 
@@ -65,7 +65,7 @@ serialPort.list().then((ports) => {
           //decode the messages
           const line = data.toString("utf8");
           console.log("got word from arduino:", data.toString("utf8"));
- 
+
           const messageString = "screensavertime";
           if (line.includes(messageString)) {
             console.log('timer', line, line.substring(messageString.length) );
@@ -139,49 +139,7 @@ const changeOutput = () => {
   });
 }
 
-const brightnessList = [
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "H",
-  "I",
-  "J",
-  "K",
-  "L",
-  "M",
-  "N",
-  "O",
-  "P",
-  "Q",
-  "R",
-  "S",
-  "T",
-  "U",
-  "V",
-  "W",
-  "X",
-  "Y",
-  "Z",
-];
-
-const getBrightnessCode = (number) => {
-  const index = Math.floor(number / 4);
-  console.log(index);
-  if (index>=brightnessList.length) {
-    return brightnessList[brightnessList.length-1];
-  }
-  else {
-    return brightnessList[Math.floor(number / 4)];
-  }
-}
-
-
 const input = new midi.Input();
-const timeLimit = 500;
 let inputPort = 0;
 
 //only try to open midi port when there is at least one port available
