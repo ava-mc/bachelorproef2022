@@ -79,8 +79,8 @@ const animationList = [
     ended: false,
     arduinoEnd: "animation-end",
     animationInfo: {
-      screen: 1,
-      animation: 1,
+      screen: 2,
+      animation: 2,
       // long: false,
       // short: false,
     },
@@ -94,8 +94,8 @@ const animationList = [
     ended: false,
     arduinoEnd: "animation2-end",
     animationInfo: {
-      screen: 2,
-      animation: 2,
+      screen: 3,
+      animation: 4,
       // long: false,
       // short: false,
     },
@@ -109,7 +109,7 @@ const animationList = [
     ended: false,
     arduinoEnd: "animation3-end",
     animationInfo: {
-      screen: 1,
+      screen: 3,
       animation: 3,
       // long: false,
       // short: false,
@@ -127,11 +127,11 @@ for (let i = 0; i < animationList.length; i++) {
 
 
 //Big keyboard at home
-// const midiType = [144];
-// const endSignal = 0;
+const midiType = [144];
+const endSignal = 0;
 //Small keyboard
-const midiType = [128, 144];
-const endSignal = 127;
+// const midiType = [128, 144];
+// const endSignal = 127;
 
 const endSignalType = midiType[0];
 
