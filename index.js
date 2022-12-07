@@ -13,23 +13,31 @@ import { fileURLToPath } from "url";
 import midi from "midi";
 import { getRandomInt, getObjKey } from "./src/js/lib.js";
 import { getAmountOfAnimations } from "./src/js/node-functions/file-counting.js";
-import {startScreensaverTimer, stopScreenSaverTimer} from './src/js/node-functions/screensaver.js';
-import {endSignal, endSignalType, midiType} from './src/js/node-functions/midi-info.js';
-import {animationList, getBrightnessCode} from './src/js/node-functions/animation-info.js';
+import {
+  startScreensaverTimer,
+  stopScreenSaverTimer,
+} from "./src/js/node-functions/screensaver.js";
+import {
+  endSignal,
+  endSignalType,
+  midiType,
+} from "./src/js/node-functions/midi-info.js";
+import {
+  animationList,
+  getBrightnessCode,
+} from "./src/js/node-functions/animation-info.js";
 
 let screensaverTime;
 
 //count the amount of png sequences and number of pngs per sequence for each screen
 const amountOfScreens = 3;
 const screenSequences = [];
-const initPngSequences = async () => {
+const getPngSequences = async () => {
   for (let i = 1; i <= amountOfScreens; i++) {
     const folder = `src/assets/pngseq/screen-${i}/`;
-    getAmountOfAnimations(folder, screenSequences, 'screen', i);
+    getAmountOfAnimations(folder, screenSequences, "screen", i);
   }
-}
-initPngSequences();
-
+};
 
 const currentNotes = [];
 const availableAnimationIndices = [];
@@ -38,55 +46,96 @@ for (let i = 0; i < animationList.length; i++) {
 }
 
 
-// Set up a new output.
-const output = new midi.Output();
-const outputOptions = [];
+// MIDI OUTPUT
+let output;
 let selectedOutput = 0;
-// output.openPort(0);
+let outputOptions;
 
+//setting up MIDI output
+const setupMIDIOutput = () => {
+  const output = new midi.Output();
+  outputOptions = getOutputOptions(output);
+  //open the first output option
+  if (outputOptions.length > 0) {
+    console.log(outputOptions);
+    console.log(
+      "output opened",
+      output.getPortName(outputOptions[selectedOutput])
+    );
+    output.openPort(outputOptions[selectedOutput]);
+  }
+  return output;
+}
+
+//change the MIDI output port
 const changeOutput = () => {
   //make sure output message is stopped with current output channel
-  currentNotes.forEach(note=> {
+  currentNotes.forEach((note) => {
     // output.sendMessage([end, note.note, endSignal]);
     output.sendMessage([endSignalType, note.note, endSignal]);
-  })
+  });
 
+  //close the current output port
   output.closePort(outputOptions[selectedOutput]);
 
+  //open the next output port
   selectedOutput++;
   if (selectedOutput === outputOptions.length) {
     selectedOutput = 0;
   }
   output.openPort(outputOptions[selectedOutput]);
 
-  //resend signal when new output port is opened
+  //resend the current MIDI signals when new output port is opened
   currentNotes.forEach((note) => {
     output.sendMessage([note.type, note.note, note.start]);
   });
+};
+
+//get the available output port numbers from the virtual ports we are using
+const getOutputOptions = (output) => {
+  const outputOptions = [];
+  for (let i = 0; i < output.getPortCount(); i++) {
+    if (output.getPortName(i).includes("Test")) {
+      outputOptions.push(i);
+      console.log(outputOptions);
+    }
+  }
+  return outputOptions;
 }
 
-const input = new midi.Input();
-let inputPort = 0;
 
-//only try to open midi port when there is at least one port available
-if (input.getPortCount() > 0) {
-  // Get the name of a specified input port.
-  for (let i=0;i<input.getPortCount();i++){
-    if (!input.getPortName(i).includes('Test')) {
-      inputPort = i;
+// MIDI INPUT
+const setupMIDIInput = () => {
+  const input = new midi.Input();
+
+  //get the right MIDI input port for the piano device
+  let inputPort = getMIDIInputPort(input);
+
+  //handle the MIDI signals
+  input.on("message", handleMidiInput);
+
+  //open the right input port
+  input.openPort(inputPort);
+};
+
+//get the right MIDI input port for the piano
+const getMIDIInputPort = (input) => {
+  if (input.getPortCount() > 0) {
+    // Get the name of a specified input port.
+    for (let i = 0; i < input.getPortCount(); i++) {
+      if (!input.getPortName(i).includes("Test")) {
+        return i;
+      }
     }
+    return 0;
   }
-  for (let i = 0; i < output.getPortCount(); i++) {
-    if (output.getPortName(i).includes('Test')) {
-      outputOptions.push(i);
-    }
-  }
-  if (outputOptions.length>0){
-    console.log('output opened', output.getPortName(outputOptions[selectedOutput]));
-    output.openPort(outputOptions[selectedOutput]);
-  }
-  input.on("message", (deltaTime, message) => {
+}
+
+//handle the MIDI input signals
+const handleMidiInput = (deltaTime, message) => {
     console.log(output);
+
+    //send the MIDI signal to the currently opened output port to get the sound
     output.sendMessage(message);
     // The message is an array of numbers corresponding to the MIDI bytes:
     //   [status, data1, data2]
@@ -94,12 +143,13 @@ if (input.getPortCount() > 0) {
     // information interpreting the messages.
     console.log(message);
     console.log(`m: ${message} d: ${deltaTime}`);
+
     //check the type of midi input, we only read note values
     if (midiType.includes(message[0])) {
       //check that the note is started
       if (message[2] != endSignal) {
-          //send velocity to the arduino to adjust brightness
-          writeToArduino(getBrightnessCode(message[2]));
+        //send velocity to the arduino to adjust brightness
+        writeToArduino(getBrightnessCode(message[2]));
 
         // stop screensaver timer
         stopScreenSaverTimer();
@@ -120,15 +170,20 @@ if (input.getPortCount() > 0) {
               getRandomInt(0, availableAnimationIndices.length - 1)
             ];
 
-          //remove the chosen animationIndex from the available indices
+          //remove the chosen animationIndex from the available animation indices
           availableAnimationIndices.splice(
             availableAnimationIndices.indexOf(animationIndex),
             1
           );
 
+          //adjust the values of the chosen animation to link it to the new note
           const chosenAnimation = animationList[animationIndex];
           chosenAnimation.note = message[1];
+
+          //send the corresponding message for this animation to arduinno
           writeToArduino(chosenAnimation.startMessage);
+
+          //start the timer to see whether the note is pressed long
           chosenAnimation.timer = setInterval(() => {
             chosenAnimation.counter++;
             if (chosenAnimation.ended === true) {
@@ -137,39 +192,48 @@ if (input.getPortCount() > 0) {
             }
           }, 100);
         }
-      } else {
+      } 
+      //otherwise, we get the stop signal for a note
+      else {
         //check if note was in the list
         console.log(currentNotes);
         const selectedNote = currentNotes.find(
           (item) => item.note === message[1]
         );
         console.log(selectedNote);
+
         if (selectedNote) {
+          //remove the note from the list of currently played notes
           currentNotes.splice(currentNotes.indexOf(selectedNote), 1);
           console.log(currentNotes);
+
+          //find the corresponding animation that was linked to the note
           const selectedAnimation = animationList.find(
             (item) => item.note === selectedNote.note
           );
+          //if we find this animation, we reset it 
           if (selectedAnimation) {
             selectedAnimation.ended = false;
+
+            //reset the timer for the long played note animation
             selectedAnimation.counter = 0;
             clearInterval(selectedAnimation.timer);
-            selectedAnimation.counter = 0;
+
+            //unlink the animation from the note
             selectedAnimation.note = null;
+
             //add animation index back to list of available animationIndices
             const index = animationList.indexOf(selectedAnimation);
             availableAnimationIndices.push(index);
             writeToArduino(selectedAnimation.endMessage);
 
             //let screen know that long animation should stop
-            // if (selectedAnimation.animationInfo.long) {
-              // selectedAnimation.animationInfo.long = false;
-              console.log(selectedAnimation);
-              console.log('stop long animation', selectedAnimation.animationInfo);
-              // io.emit("pngs", selectedAnimation.animationInfo);
-              io.emit('pngs', {...selectedAnimation.animationInfo, long:false});
+            console.log("stop long animation", selectedAnimation.animationInfo);
+            io.emit("pngs", {
+              ...selectedAnimation.animationInfo,
+              long: false,
+            });
             // }
-
           }
         }
 
@@ -179,47 +243,27 @@ if (input.getPortCount() > 0) {
         }
       }
     }
-  });
-  // Open the input port of the piano
-  input.openPort(inputPort);
-}
-
-//function to write a message to arduino
-export const writeToArduino = (msg) => {
-  arduinoSerialPort.write(msg, (err) => {
-    if (err) {
-      return console.log("Error on write: ", err.message);
-    }
-    console.log("message written ", msg);
-  });
-};
-
-const __filename = fileURLToPath(import.meta.url);
-
-const __dirname = filepath.dirname(__filename);
-
-app.use("/", express.static(__dirname + "/"));
-
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
-});
+  }
 
 //keep track of which screens are chosen
 let chosenScreens = [];
 const screens = { 1: null, 2: null, 3: null };
 
 io.on("connection", (socket) => {
-
   socket.on("start", () => {
     console.log("got message from screen");
     writeToArduino("1");
   });
 
-  socket.on('short-ended', info => {
+  socket.on("short-ended", (info) => {
     console.log(info);
-    const animation = animationList.find(item => item.animationInfo.screen === info.screen && item.animationInfo.animation === info.animation);
+    const animation = animationList.find(
+      (item) =>
+        item.animationInfo.screen === info.screen &&
+        item.animationInfo.animation === info.animation
+    );
     console.log(animation);
-  })
+  });
 
   //automatically disconnect if there are officially 3 screens selected, and new screen tries to connect
   if (chosenScreens.length == 3) {
@@ -286,13 +330,6 @@ io.on("connection", (socket) => {
   }
 });
 
-//adding the port variable so that we run on 3000 locally and on heroku given $PORT online
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Our app is running on port ${PORT}`);
-});
-
-
 //ARDUINO LOGIC
 let arduinoSerialPort = "";
 const setUpArduino = () => {
@@ -325,7 +362,7 @@ const setUpArduino = () => {
       }
     });
   });
-}
+};
 
 const arduinoReadingInit = () => {
   //reading the signal from the arduino
@@ -371,10 +408,43 @@ const arduinoReadingInit = () => {
       }
     });
   }
-}
+};
+
+//function to write a message to arduino
+export const writeToArduino = (msg) => {
+  arduinoSerialPort.write(msg, (err) => {
+    if (err) {
+      return console.log("Error on write: ", err.message);
+    }
+    console.log("message written ", msg);
+  });
+};
+
+// OPENING PORT TO BROWSER
+const initApp = () => {
+  const __filename = fileURLToPath(import.meta.url);
+
+  const __dirname = filepath.dirname(__filename);
+
+  app.use("/", express.static(__dirname + "/"));
+
+  app.get("/", (req, res) => {
+    res.sendFile(__dirname + "/index.html");
+  });
+
+  //adding the port variable so that we run on 3000 locally and on heroku given $PORT online
+  const PORT = process.env.PORT || 3000;
+  server.listen(PORT, () => {
+    console.log(`Our app is running on port ${PORT}`);
+  });
+};
 
 const init = () => {
+  getPngSequences();
   setUpArduino();
+  initApp();
+  setupMIDIInput();
+  output = setupMIDIOutput();
 };
 
 init();
