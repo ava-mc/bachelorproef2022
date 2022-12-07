@@ -223,7 +223,7 @@ const loop = (timestamp) => {
               //remove the previous play info for this animation, if there was info about it already
               playInfo.splice(playInfo.indexOf(playItem), 1);
               //we let server know the animation has ended
-              socket.emit("short-ended", playItem);
+              // socket.emit("short-ended", playItem);
               //clear canvas
               clearCanvas();
             }
