@@ -63,28 +63,28 @@ $canvas.width = window.innerWidth;
 $canvas.height = window.innerHeight;
 const context = $canvas.getContext("2d");
 
-window.addEventListener('resize', () => {
+window.addEventListener("resize", () => {
   $canvas.width = window.innerWidth;
   $canvas.height = window.innerHeight;
-})
+});
 
 const showImage = (img) => {
-//   console.log("showImage", img);
+  //   console.log("showImage", img);
   context.drawImage(img, 0, 0, window.innerWidth, window.innerHeight);
-    // img.style.display = "block";
-    // img.style.opacity = 1;
+  // img.style.display = "block";
+  // img.style.opacity = 1;
 };
 
 const hideImage = (img) => {
-    // img.style.display = "none";
-    // img.style.opacity = 0;
+  // img.style.display = "none";
+  // img.style.opacity = 0;
   // context.clearRect(0, 0, $canvas.width, $canvas.height);
 };
 
 const clearCanvas = () => {
-    context.clearRect(0, 0, $canvas.width, $canvas.height);
-    // imagesList.forEach((img)=>hideImage(img));
-}
+  context.clearRect(0, 0, $canvas.width, $canvas.height);
+  // imagesList.forEach((img)=>hideImage(img));
+};
 
 const sourceStart = "./src/assets/pngseq/";
 //Load png sequences
@@ -152,8 +152,8 @@ const loadImage = (src, id) => {
     img.onload = () => {
       console.log("loaded ", img, typeof img);
       // showImage(img);
-        // $images.appendChild(img);
-        // hideImage(img);
+      // $images.appendChild(img);
+      // hideImage(img);
       totalLoadedImages++;
       if (totalLoadedImages === loadedImagesLimit) {
         console.log("all images loaded");
@@ -175,67 +175,67 @@ let imageIndex = 0;
 let previousIndex = 0;
 const $loading = document.getElementById("loading");
 const fps = 30;
-const interval = Math.floor(1000 / fps); 
+const interval = Math.floor(1000 / fps);
 let startTime = performance.now();
 let previousTime = startTime;
 
 let currentTime = 0;
 let deltaTime = 0;
 const loop = (timestamp) => {
-    // if (!previousTime) {
-    //     previousTime = time;
-    // }
-    
-    currentTime = timestamp;
-    deltaTime = currentTime - previousTime;
-    if (deltaTime > interval) {
-        console.log(deltaTime);
-      // previousTime = time - ((time-previousTime) % interval);
+  // if (!previousTime) {
+  //     previousTime = time;
+  // }
+
+  currentTime = timestamp;
+  deltaTime = currentTime - previousTime;
+  if (deltaTime > interval) {
+    // console.log(deltaTime);
+    // previousTime = time - ((time-previousTime) % interval);
     //   previousTime = time;
     clearCanvas();
     previousTime = currentTime - (deltaTime % interval);
-      if (totalLoadedImages === loadedImagesLimit) {
-        $loading.textContent = "done loading";
-        if (imagesList.length > 0) {
-          // playInfo.forEach((playItem) => {
-            for (let j=0; j<playInfo.length; j++){
-              const playItem = playInfo[j];
-            const length = playItem.images.length;
-            //hide all images
-            // playItem.images.forEach((img) => hideImage(img));
-            // hideImage();
-            // clearCanvas();
+    if (totalLoadedImages === loadedImagesLimit) {
+      // $loading.textContent = "done loading";
+      if (imagesList.length > 0) {
+        // playInfo.forEach((playItem) => {
+        for (let j = 0; j < playInfo.length; j++) {
+          const playItem = playInfo[j];
+          const length = playItem.images.length;
+          //hide all images
+          // playItem.images.forEach((img) => hideImage(img));
+          // hideImage();
+          // clearCanvas();
 
-            //only show current image
-            const image = playItem.images[playItem.index];
-            // if (image) {
-              showImage(image);
-            // }
-            playItem.index++;
+          //only show current image
+          const image = playItem.images[playItem.index];
+          // if (image) {
+          showImage(image);
+          // }
+          playItem.index++;
 
-            if (playItem.index >= length) {
-              //if it's the long state, we repeat the animation
-              if (playItem.long) {
-                playItem.index = 0;
-              }
-              //if it's the short animations, we remove the animation from the playInfo list once it is done
-              if (playItem.short) {
-                //remove the previous play info for this animation, if there was info about it already
-                playInfo.splice(playInfo.indexOf(playItem), 1);
-                //we let server know the animation has ended
-                socket.emit("short-ended", playItem);
-                //clear canvas
-                clearCanvas();
-              }
+          if (playItem.index >= length) {
+            //if it's the long state, we repeat the animation
+            if (playItem.long) {
+              playItem.index = 0;
+            }
+            //if it's the short animations, we remove the animation from the playInfo list once it is done
+            if (playItem.short) {
+              //remove the previous play info for this animation, if there was info about it already
+              playInfo.splice(playInfo.indexOf(playItem), 1);
+              //we let server know the animation has ended
+              socket.emit("short-ended", playItem);
+              //clear canvas
+              clearCanvas();
             }
           }
-          // );
         }
-      } else {
-        $loading.textContent = "loading";
+        // );
       }
+    } else {
+      $loading.textContent = "loading";
     }
-  
+  }
+
   window.requestAnimationFrame(loop);
 };
 
@@ -260,7 +260,7 @@ socket.on("pngs", (info) => {
 
     //if no state is true, we remove the animation info from the playing list and hide the images
     if (!durationState) {
-    //   console.log("no info");
+      //   console.log("no info");
       const previous = playInfo.find(
         (item) => item.animation === info.animation
       );
@@ -269,13 +269,13 @@ socket.on("pngs", (info) => {
         // previous.images.forEach((img) => hideImage(img));
         playInfo.splice(playInfo.indexOf(previous), 1);
       }
-     clearCanvas();
+      clearCanvas();
     } else {
-    //   console.log("images");
+      //   console.log("images");
       //reset index
       info.index = 0;
       //get right images
-    //   console.log(imagesList);
+      //   console.log(imagesList);
       const animationImages = imagesList.find(
         (item) => item.name === `animation-${info.animation}`
       );
@@ -357,39 +357,35 @@ socket.on("screen disconnected", (selectedScreens) => {
   });
 });
 
-
-socket.on('screensaverTime', time => {
+socket.on("screensaverTime", (time) => {
   // set css variable for transition time of screensaver text
-  document.documentElement.style.setProperty(
-    "--transition-length",
-    `${time}s`
-  );
+  document.documentElement.style.setProperty("--transition-length", `${time}s`);
   // console.log(document.documentElement.style.getProperty("--transition-length"));
-  console.log('got screensaver time', time);
-})
+  console.log("got screensaver time", time);
+});
 
-const $screenSaver = document.querySelector('.screensaver');
-socket.on('screensaverStart',()=> {
-  $screenSaver.classList.remove('hidden');
+const $screenSaver = document.querySelector(".screensaver");
+socket.on("screensaverStart", () => {
+  $screenSaver.classList.remove("hidden");
 });
 socket.on("screensaverStop", () => {
   $screenSaver.classList.add("hidden");
   const $screensaverSpan = document
     .querySelector(`.screen${currentScreen}`)
     .querySelector(`span:nth-of-type(${currentScreen})`);
-    $screensaverSpan.classList.remove("opacity-up");
-    $screensaverSpan.classList.add("opacity-down");
+  $screensaverSpan.classList.remove("opacity-up");
+  $screensaverSpan.classList.add("opacity-down");
 });
 
-
-socket.on('opacity-change', type => {
-  const $screensaverSpan = document.querySelector(`.screen${currentScreen}`).querySelector(`span:nth-of-type(${currentScreen})`);
-  if (type=='up') {
+socket.on("opacity-change", (type) => {
+  const $screensaverSpan = document
+    .querySelector(`.screen${currentScreen}`)
+    .querySelector(`span:nth-of-type(${currentScreen})`);
+  if (type == "up") {
     $screensaverSpan.classList.add("opacity-up");
     $screensaverSpan.classList.remove("opacity-down");
-  }
-  else {
+  } else {
     $screensaverSpan.classList.remove("opacity-up");
     $screensaverSpan.classList.add("opacity-down");
   }
-})
+});
