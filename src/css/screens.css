@@ -35,6 +35,10 @@
   -moz-transition: opacity var(--transition-length) ease-in-out;
   display: none;
   opacity: 0;
+  font-size: 20rem;
+  font-family:Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  position: absolute;
 }
 
 .screensaver .opacity-up {
@@ -47,14 +51,22 @@
 
 .screen1 .screensaver span:nth-of-type(1) {
   display: inline-block;
+  top: 50%;
+  right: 5%;
+  transform: translateY(-50%);
 }
 
 .screen2 .screensaver span:nth-of-type(2) {
   display: inline-block;
+  top: 20%;
+  left: 5%;
 }
 
 .screen3 .screensaver span:nth-of-type(3) {
   display: inline-block;
+  bottom: 5%;
+  right: 50%;
+  transform: translateY(50%);
 }
 
 .animate {
