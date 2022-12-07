@@ -7,29 +7,26 @@ export const addFileAmount = async (dir, list, name, index) => {
   const longDir = `${dir}/long`;
   const shortDir = `${dir}/short`;
   fs.readdir(longDir, (err, files) => {
-    if (!files) return;
+    // if (!files) return;
     let amount = files.length;
     object.long = amount;
     console.log(list);
-    list.push(object);
-    // console.log("full", screenSequences);
   });
   fs.readdir(shortDir, (err, files) => {
-    if (!files) return;
+    // if (!files) return;
     let amount = files.length;
         object.short = amount;
         console.log(list);
-        list.push(object);
-    // console.log("full", screenSequences);
   });
-//   list.push(object);
+  list.push(object);
 };
 
 //function that gets amount of animation folders per screen
 export const getAmountOfAnimations = async (dir, list, name, index) => {
   fs.readdir(dir, (err, files) => {
-    console.log(files);
-    let amount = files.length;
+    const nwFiles = files.filter(item => item!= '.DS_Store');
+    console.log(files, nwFiles);
+    let amount = nwFiles.length;
     let object = {};
     object.name = `${name}-${index}`;
     object.animations = [];
