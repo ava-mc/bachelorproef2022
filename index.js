@@ -16,6 +16,8 @@ import { getRandomInt } from "./src/js/lib.js";
 import fs from 'fs';
 
 
+let screensaverTime;
+
 const amountOfScreens = 3;
 //function that adds the file amount for each animation folder
 const addFileAmount = async (dir, list, name, index) => {
@@ -141,6 +143,9 @@ const screenSaverMaxWait = 10;
 
 const showScreenSaver = () => {
   writeToArduino("s");
+  
+  //let browser know it has started
+  io.emit("screensaverStart");
 };
 
 const startScreensaverTimer = () => {
@@ -162,12 +167,14 @@ const startScreensaverTimer = () => {
 
     }
   }, 1000)
+
+  
 }
 
 const stopScreenSaverTimer = () => {
-  console.log('stop screensaver');
+  console.log("stop screensaver");
   //let arduino now to stop
-  writeToArduino('t');
+  writeToArduino("t");
 
   //stop timer
   clearInterval(screenSaverTimer);
@@ -176,6 +183,8 @@ const stopScreenSaverTimer = () => {
   screenSaverCounter = 0;
   playScreenSaver = false;
 
+  //let browser know it has stopped
+  io.emit("screensaverStop");
 }
 
 let path = "";
@@ -197,8 +206,11 @@ serialPort.list().then((ports) => {
       arduinoSerialPort.on("open", function () {
         console.log(`connected! arduino is now connected at port ${path}`);
 
-        //start the screensaver timer for the first time
-        startScreensaverTimer();
+        // //start the screensaver timer for the first time
+        // startScreensaverTimer();
+
+        //let arduino know, we can receive messages now
+        writeToArduino('z');
       });
       //reading the signal from the arduino
       if (arduinoSerialPort) {
@@ -225,6 +237,22 @@ serialPort.list().then((ports) => {
           //     animationList[2].ended = true;
           //   }
           // }
+          const messageString = "screensavertime";
+          if (line.includes(messageString)) {
+            console.log('timer', line, line.substring(messageString.length) );
+            screensaverTime = parseInt(
+              line.substring(messageString.length)
+            )/1000;
+            // //let browser know about this value
+            // io.emit('screensaverTime', screensaverTime);
+          }
+
+          if (line == 'opacity-up') {
+            io.emit('opacity-change', 'up');
+          }
+          if (line == "opacity-down") {
+            io.emit("opacity-change", "down");
+          }
 
           animationList.forEach((item, index) => {
             if (line === item.arduinoEnd) {
@@ -561,6 +589,12 @@ io.on("connection", (socket) => {
       io.emit("screen chosen", chosenScreens);
       if (chosenScreens.length == 3) {
         // startInstallation = true;
+
+        //let browser know about the screensaverTime once all screens are selected
+        io.emit("screensaverTime", screensaverTime);
+
+        //start the screensaver timer for the first time
+        startScreensaverTimer();
       }
     });
   }

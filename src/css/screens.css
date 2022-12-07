@@ -1,3 +1,7 @@
+:root {
+  --transition-length: 2s;
+}
+
 .example {
     background-color: black;
     border-radius: 50%;
@@ -16,6 +20,41 @@
 
 .screen3 .example {
     background-color: red;
+}
+
+.screen1 body, .screen2 body, .screen3 body {
+  background-color: black;
+}
+
+.screensaver {
+  color: white;
+}
+
+.screensaver span {
+  transition: opacity var(--transition-length) ease-in-out;
+  -moz-transition: opacity var(--transition-length) ease-in-out;
+  display: none;
+  opacity: 0;
+}
+
+.screensaver .opacity-up {
+  opacity: 1;
+}
+
+.screensaver .opacity-down {
+  opacity: 0;
+}
+
+.screen1 .screensaver span:nth-of-type(1) {
+  display: inline-block;
+}
+
+.screen2 .screensaver span:nth-of-type(2) {
+  display: inline-block;
+}
+
+.screen3 .screensaver span:nth-of-type(3) {
+  display: inline-block;
 }
 
 .animate {
@@ -59,8 +98,8 @@
 #images {
   position: absolute;
   display: grid;
-  grid-row: 100%;
-  grid-column: 100%;
+  grid-template-rows: 100%;
+  grid-template-columns: 100%;
   top: 0;
   left: 0;
   z-index: -1;
@@ -70,6 +109,13 @@
 #images img {
   grid-row: 1;
   grid-column: 1;
+}
+
+canvas {
+  position: absolute;
+   top: 0;
+  left: 0;
+  z-index: -1;
 }
 
 .hidden {
