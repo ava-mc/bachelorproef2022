@@ -14,11 +14,10 @@ import midi from "midi";
 import { getRandomInt, getObjKey } from "./src/js/lib.js";
 import { getAmountOfAnimations } from "./src/js/node-functions/file-counting.js";
 import {startScreensaverTimer, stopScreenSaverTimer} from './src/js/node-functions/screensaver.js';
-
+import {endSignal, endSignalType, midiType} from './src/js/node-functions/midi-info.js';
+import {animationList} from './src/js/node-functions/animation-list.js';
 
 let screensaverTime;
-
-
 
 //count the amount of png sequences and number of pngs per sequence for each screen
 const amountOfScreens = 3;
@@ -32,66 +31,11 @@ const initPngSequences = async () => {
 initPngSequences();
 
 
-
-const animationList = [
-  {
-    startMessage: "1",
-    longMessage: "a",
-    endMessage: "b",
-    counter: 0,
-    timer: null,
-    ended: false,
-    arduinoEnd: "animation-end",
-    animationInfo: {
-      screen: 2,
-      animation: 2,
-    },
-  },
-  {
-    startMessage: "2",
-    longMessage: "c",
-    endMessage: "d",
-    counter: 0,
-    timer: null,
-    ended: false,
-    arduinoEnd: "animation2-end",
-    animationInfo: {
-      screen: 3,
-      animation: 4,
-    },
-  },
-  {
-    startMessage: "3",
-    longMessage: "e",
-    endMessage: "f",
-    counter: 0,
-    timer: null,
-    ended: false,
-    arduinoEnd: "animation3-end",
-    animationInfo: {
-      screen: 3,
-      animation: 3,
-    },
-  },
-];
-
-
 const currentNotes = [];
 const availableAnimationIndices = [];
 for (let i = 0; i < animationList.length; i++) {
   availableAnimationIndices.push(i);
 }
-
-
-
-//Big keyboard at home
-const midiType = [144];
-const endSignal = 0;
-//Small keyboard
-// const midiType = [128, 144];
-// const endSignal = 127;
-
-const endSignalType = midiType[0];
 
 let path = "";
 let arduinoSerialPort = "";
@@ -139,25 +83,17 @@ serialPort.list().then((ports) => {
 
           animationList.forEach((item, index) => {
             if (line === item.arduinoEnd) {
-              // io.emit("ended");
-              //reset animationInfo
-              // item.animationInfo.short = false;
-              // item.animationInfo.long = false;
-
               if (animationList[index].counter > 0) {
                 animationList[index].ended = true;
-                // item.animationInfo.long = true;
                 io.emit("pngs", {...item.animationInfo, long:true});
 
               }
               else {
-                // item.animationInfo.short = true;
                 io.emit("pngs", {
                   ...item.animationInfo,
                   short: true,
                 });
               }
-              // io.emit('pngs', item.animationInfo);
             }
           })
 
@@ -387,11 +323,6 @@ app.get("/", (req, res) => {
 //keep track of which screens are chosen
 let chosenScreens = [];
 const screens = { 1: null, 2: null, 3: null };
-
-// //function to find the key of a certain value of an object
-// const getObjKey = (obj, value) => {
-//   return Object.keys(obj).find((key) => obj[key] === value);
-// };
 
 io.on("connection", (socket) => {
 
