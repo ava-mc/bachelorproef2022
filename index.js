@@ -13,8 +13,7 @@ import { fileURLToPath } from "url";
 import midi from "midi";
 import { getRandomInt } from "./src/js/lib.js";
 import { getAmountOfAnimations } from "./src/js/node-functions/file-counting.js";
-
-// import fs from 'fs';
+import {startScreensaverTimer, stopScreenSaverTimer} from './src/js/node-functions/screensaver.js';
 
 
 let screensaverTime;
@@ -46,8 +45,6 @@ const animationList = [
     animationInfo: {
       screen: 2,
       animation: 2,
-      // long: false,
-      // short: false,
     },
   },
   {
@@ -61,8 +58,6 @@ const animationList = [
     animationInfo: {
       screen: 3,
       animation: 4,
-      // long: false,
-      // short: false,
     },
   },
   {
@@ -76,17 +71,15 @@ const animationList = [
     animationInfo: {
       screen: 3,
       animation: 3,
-      // long: false,
-      // short: false,
     },
   },
 ];
+
+
 const currentNotes = [];
 const availableAnimationIndices = [];
 for (let i = 0; i < animationList.length; i++) {
-  console.log(i);
   availableAnimationIndices.push(i);
-  console.log(availableAnimationIndices);
 }
 
 
@@ -100,57 +93,49 @@ const endSignal = 0;
 
 const endSignalType = midiType[0];
 
-let playScreenSaver = true;
-let screenSaverTimer;
-let screenSaverCounter = 0;
-const screenSaverMaxWait = 10;
-// const screenSaverMaxWait = 2;
+// let playScreenSaver = true;
+// let screenSaverTimer;
+// let screenSaverCounter = 0;
+// const screenSaverMaxWait = 10;
 
-const showScreenSaver = () => {
-  writeToArduino("s");
-  
-  //let browser know it has started
-  io.emit("screensaverStart");
-};
+// const startScreensaverTimer = () => {
+//   //to be safe, we stop the timer before we start it, so only 1 timer can run at the same time.
+//   stopScreenSaverTimer();
 
-const startScreensaverTimer = () => {
-  //to be safe, we stop the timer before we start it, so only 1 timer can run at the same time.
-  stopScreenSaverTimer();
+//   playScreenSaver = true;
 
-  playScreenSaver = true;
+//   screenSaverTimer = setInterval(()=>{
+//     screenSaverCounter++;
+//     console.log(screenSaverCounter);
+//     if (screenSaverCounter>screenSaverMaxWait) {
+//       //let arduino know to start screensaver effect
+//       if (playScreenSaver) {
+//         console.log('start screensaver');
+//         showScreenSaver();
+//         playScreenSaver = false;
+//       }
 
-  screenSaverTimer = setInterval(()=>{
-    screenSaverCounter++;
-    console.log(screenSaverCounter);
-    if (screenSaverCounter>screenSaverMaxWait) {
-      //let arduino know to start screensaver effect
-      if (playScreenSaver) {
-        console.log('start screensaver');
-        showScreenSaver();
-        playScreenSaver = false;
-      }
-
-    }
-  }, 1000)
+//     }
+//   }, 1000)
 
   
-}
+// }
 
-const stopScreenSaverTimer = () => {
-  console.log("stop screensaver");
-  //let arduino now to stop
-  writeToArduino("t");
+// const stopScreenSaverTimer = () => {
+//   console.log("stop screensaver");
+//   //let arduino now to stop
+//   writeToArduino("t");
 
-  //stop timer
-  clearInterval(screenSaverTimer);
+//   //stop timer
+//   clearInterval(screenSaverTimer);
 
-  //reset timer
-  screenSaverCounter = 0;
-  playScreenSaver = false;
+//   //reset timer
+//   screenSaverCounter = 0;
+//   playScreenSaver = false;
 
-  //let browser know it has stopped
-  io.emit("screensaverStop");
-}
+//   //let browser know it has stopped
+//   io.emit("screensaverStop");
+// }
 
 let path = "";
 let arduinoSerialPort = "";
@@ -447,7 +432,7 @@ if (input.getPortCount() > 0) {
 }
 
 //function to write a message to arduino
-const writeToArduino = (msg) => {
+export const writeToArduino = (msg) => {
   arduinoSerialPort.write(msg, (err) => {
     if (err) {
       return console.log("Error on write: ", err.message);
