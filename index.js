@@ -11,7 +11,7 @@ import * as filepath from "path";
 import { fileURLToPath } from "url";
 
 import midi from "midi";
-import { getRandomInt } from "./src/js/lib.js";
+import { getRandomInt, getObjKey } from "./src/js/lib.js";
 import { getAmountOfAnimations } from "./src/js/node-functions/file-counting.js";
 import {startScreensaverTimer, stopScreenSaverTimer} from './src/js/node-functions/screensaver.js';
 
@@ -93,50 +93,6 @@ const endSignal = 0;
 
 const endSignalType = midiType[0];
 
-// let playScreenSaver = true;
-// let screenSaverTimer;
-// let screenSaverCounter = 0;
-// const screenSaverMaxWait = 10;
-
-// const startScreensaverTimer = () => {
-//   //to be safe, we stop the timer before we start it, so only 1 timer can run at the same time.
-//   stopScreenSaverTimer();
-
-//   playScreenSaver = true;
-
-//   screenSaverTimer = setInterval(()=>{
-//     screenSaverCounter++;
-//     console.log(screenSaverCounter);
-//     if (screenSaverCounter>screenSaverMaxWait) {
-//       //let arduino know to start screensaver effect
-//       if (playScreenSaver) {
-//         console.log('start screensaver');
-//         showScreenSaver();
-//         playScreenSaver = false;
-//       }
-
-//     }
-//   }, 1000)
-
-  
-// }
-
-// const stopScreenSaverTimer = () => {
-//   console.log("stop screensaver");
-//   //let arduino now to stop
-//   writeToArduino("t");
-
-//   //stop timer
-//   clearInterval(screenSaverTimer);
-
-//   //reset timer
-//   screenSaverCounter = 0;
-//   playScreenSaver = false;
-
-//   //let browser know it has stopped
-//   io.emit("screensaverStop");
-// }
-
 let path = "";
 let arduinoSerialPort = "";
 // check at which port the arduino is selected, to set up our serial communication
@@ -156,9 +112,6 @@ serialPort.list().then((ports) => {
       arduinoSerialPort.on("open", function () {
         console.log(`connected! arduino is now connected at port ${path}`);
 
-        // //start the screensaver timer for the first time
-        // startScreensaverTimer();
-
         //let arduino know, we can receive messages now
         writeToArduino('z');
       });
@@ -168,33 +121,13 @@ serialPort.list().then((ports) => {
           //decode the messages
           const line = data.toString("utf8");
           console.log("got word from arduino:", data.toString("utf8"));
-          // if (line === "animation-end") {
-          //   io.emit("ended");
-          //   if (animationList[0].counter > 0) {
-          //     animationList[0].ended = true;
-          //   }
-          // }
-          // if (line === "animation2-end") {
-          //   io.emit("ended2");
-          //   if (animationList[1].counter > 0) {
-          //     animationList[1].ended = true;
-          //   }
-          // }
-          // if (line === "animation3-end") {
-          //   console.log("done");
-          //   io.emit("ended3");
-          //   if (animationList[2].counter > 0) {
-          //     animationList[2].ended = true;
-          //   }
-          // }
+ 
           const messageString = "screensavertime";
           if (line.includes(messageString)) {
             console.log('timer', line, line.substring(messageString.length) );
             screensaverTime = parseInt(
               line.substring(messageString.length)
             )/1000;
-            // //let browser know about this value
-            // io.emit('screensaverTime', screensaverTime);
           }
 
           if (line == 'opacity-up') {
@@ -455,13 +388,12 @@ app.get("/", (req, res) => {
 let chosenScreens = [];
 const screens = { 1: null, 2: null, 3: null };
 
-//function to find the correct screen by its key
-const getObjKey = (obj, value) => {
-  return Object.keys(obj).find((key) => obj[key] === value);
-};
+// //function to find the key of a certain value of an object
+// const getObjKey = (obj, value) => {
+//   return Object.keys(obj).find((key) => obj[key] === value);
+// };
 
 io.on("connection", (socket) => {
-  // io.emit('animation-info',screenSequences);
 
   socket.on("start", () => {
     console.log("got message from screen");
@@ -472,18 +404,7 @@ io.on("connection", (socket) => {
     console.log(info);
     const animation = animationList.find(item => item.animationInfo.screen === info.screen && item.animationInfo.animation === info.animation);
     console.log(animation);
-    //reset the info
-    // animation.animationInfo.short = false;
   })
-  // socket.on("start2", () => {
-  //   console.log("got message from screen");
-  //   writeToArduino("2");
-  // });
-
-  // socket.on("start3", () => {
-  //   console.log("got message from screen");
-  //   writeToArduino("3");
-  // });
 
   //automatically disconnect if there are officially 3 screens selected, and new screen tries to connect
   if (chosenScreens.length == 3) {
