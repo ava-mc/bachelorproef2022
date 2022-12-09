@@ -16,6 +16,7 @@ import {
   endSignal,
   endSignalType,
   midiType,
+  velocityScale
 } from "./src/js/node-functions/midi-info.js";
 import {
   animationList,
@@ -145,8 +146,11 @@ const handleMidiInput = (deltaTime, message) => {
     if (midiType.includes(message[0])) {
       //check that the note is started
       if (message[2] != endSignal) {
+        //get brightness code from the note velocity
+        const brightnessCode = getBrightnessCode(message[2]);
+
         //send velocity to the arduino to adjust brightness
-        writeToArduino(getBrightnessCode(message[2]));
+        writeToArduino(brightnessCode);
 
         // stop screensaver timer
         stopScreenSaverTimer();
@@ -176,6 +180,9 @@ const handleMidiInput = (deltaTime, message) => {
           //adjust the values of the chosen animation to link it to the new note
           const chosenAnimation = animationList[animationIndex];
           chosenAnimation.note = message[1];
+
+          //set the brightness of this animation
+          chosenAnimation.animationInfo.brightness = message[2]/velocityScale;
 
           //send the corresponding message for this animation to arduinno
           writeToArduino(chosenAnimation.startMessage);
