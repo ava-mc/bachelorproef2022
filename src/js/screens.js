@@ -3,6 +3,7 @@ import { initScreen1 } from "./screen1.js";
 import { initScreen2 } from "./screen2.js";
 import { initScreen3 } from "./screen3.js";
 import {loadImages} from './browser-functions/image-loading.js';
+import {amountOfVersions} from './lib.js';
 
 /////// SCREEN SELECTION LOGIC ////////
 let currentScreen;
@@ -110,7 +111,8 @@ const getScreenSelection = () => {
 
 ////// PNG SEQUENCE LOGIC ////////
 // categorised list of all images
-let imagesList = [];
+// let imagesList = [];
+let imagesList = {};
 let totalLoadedImages = 0;
 let loadedImagesLimit = 0;
 
@@ -132,13 +134,16 @@ const pngSequenceInit = () => {
 
   // get the info about the animations related to this screen
   socket.on("animation-info", async (animationInfo) => {
-    //get the right images linked to the info about the animations of this screen
-    imagesList = await loadImages(animationInfo);
-    //get the total amount of images that should be loaded before we can start
-    for (let i = 0; i < animationInfo.animations.length; i++) {
-      loadedImagesLimit += animationInfo.animations[i].long;
-      loadedImagesLimit += animationInfo.animations[i].short;
-      console.log(loadedImagesLimit);
+    for (let i = 1; i <= amountOfVersions; i++ ) {
+      const version = `version-${i}`;
+      //get the right images linked to the info about the animations of this screen
+      imagesList[version] = await loadImages(animationInfo[version], version);
+      //get the total amount of images that should be loaded before we can start
+      for (let j = 0; j < animationInfo[version].animations.length; j++) {
+        loadedImagesLimit += animationInfo[version].animations[j].long;
+        loadedImagesLimit += animationInfo[version].animations[j].short;
+        console.log(loadedImagesLimit);
+      }
     }
     console.log("the animation info:", animationInfo);
   });
@@ -184,10 +189,10 @@ const pngSequenceInit = () => {
 }
 
 // show an image
-const scalingOpacityFactor = 1.2;
+// const scalingOpacityFactor = 1.2;
 const showImage = (img, opacity) => {
   context.save();
-  context.globalAlpha = opacity*scalingOpacityFactor;
+  context.globalAlpha = opacity;
   context.drawImage(img, 0, 0, window.innerWidth, window.innerHeight);
   context.restore();
 };
@@ -203,8 +208,9 @@ export const onLoadedImage = () => {
   totalLoadedImages++;
   if (totalLoadedImages === loadedImagesLimit) {
     console.log("all images loaded");
+    console.log(imagesList);
     //start the loop
-    window.requestAnimationFrame(loop);
+    // window.requestAnimationFrame(loop);
   }
 }
 

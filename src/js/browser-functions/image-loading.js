@@ -1,7 +1,7 @@
 import { onLoadedImage } from "../screens.js";
 
 //load a single image
-export const loadImage = (src,loaded) => {
+export const loadImage = (src, loaded) => {
   return new Promise((resolve, reject) => {
     let img = new Image();
     img.onload = () => {
@@ -15,13 +15,14 @@ export const loadImage = (src,loaded) => {
 };
 
 //load all images of a specific animation for a certain duration type (long or short)
-const sourceStart = "./src/assets/pngseq/";
+const sourceStart = "./src/assets/pngseq";
 export const loadTypedImages = async (
   object,
   name,
   length,
   screenName,
-  screenIndex
+  screenIndex,
+  version
 ) => {
   for (let j = 0; j < length; j++) {
     let numberString = j.toString();
@@ -31,7 +32,7 @@ export const loadTypedImages = async (
       zeros += "0";
     }
     const image = await loadImage(
-      `${sourceStart}${screenName}/animation-${
+      `${sourceStart}/${version}/${screenName}/animation-${
         screenIndex + 1
       }/${name}/animation-${
         screenIndex + 1
@@ -43,9 +44,9 @@ export const loadTypedImages = async (
   }
 };
 
-//Load png sequences in a structured way 
-export const loadImages = async (animationInfo) => {
-    const imagesList = [];
+//Load png sequences in a structured way
+export const loadImages = async (animationInfo, version) => {
+  const imagesList = [];
   const animationList = animationInfo.animations;
   const screenName = animationInfo.name;
   for (let i = 0; i < animationList.length; i++) {
@@ -59,14 +60,16 @@ export const loadImages = async (animationInfo) => {
       "long",
       currentAnimationFolder.long,
       screenName,
-      i
+      i,
+      version
     );
     loadTypedImages(
       imagesObject,
       "short",
       currentAnimationFolder.short,
       screenName,
-      i
+      i,
+      version
     );
     imagesList.push(imagesObject);
     console.log(imagesList);

@@ -24,6 +24,7 @@ export const addFileAmount = async (dir, list, name, index) => {
 //function that gets amount of animation folders per screen
 export const getAmountOfAnimations = async (dir, list, name, index) => {
   fs.readdir(dir, (err, files) => {
+    console.log(files);
     const nwFiles = files.filter(item => item!= '.DS_Store');
     console.log(files, nwFiles);
     let amount = nwFiles.length;
