@@ -8,8 +8,8 @@ export const animationList = [
     ended: false,
     arduinoEnd: "animation-end",
     animationInfo: {
-      screen: 2,
-      animation: 2,
+      screen: 1,
+      animation: 4,
     },
   },
   {
@@ -21,8 +21,8 @@ export const animationList = [
     ended: false,
     arduinoEnd: "animation2-end",
     animationInfo: {
-      screen: 3,
-      animation: 4,
+      screen: 2,
+      animation: 2,
     },
   },
   {

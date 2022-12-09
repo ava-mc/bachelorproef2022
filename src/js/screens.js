@@ -145,6 +145,7 @@ const pngSequenceInit = () => {
 
   //get the info about which png sequences should be playing currently
   socket.on("pngs", (info) => {
+    console.log(info, info.brightness);
     //check whether the info is relevant for this screen
     if (info.screen == currentScreen) {
       //get the duration state
@@ -183,9 +184,10 @@ const pngSequenceInit = () => {
 }
 
 // show an image
+const scalingOpacityFactor = 1.2;
 const showImage = (img, opacity) => {
   context.save();
-  context.globalAlpha = opacity;
+  context.globalAlpha = opacity*scalingOpacityFactor;
   context.drawImage(img, 0, 0, window.innerWidth, window.innerHeight);
   context.restore();
 };
@@ -220,7 +222,7 @@ const loop = (timestamp) => {
           const length = playItem.images.length;
           //only show current image
           const image = playItem.images[playItem.index];
-          showImage(image, .2);
+          showImage(image, playItem.brightness);
           playItem.index++;
 
           //when we reached the final png in the sequence
