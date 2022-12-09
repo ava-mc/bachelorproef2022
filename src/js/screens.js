@@ -183,8 +183,11 @@ const pngSequenceInit = () => {
 }
 
 // show an image
-const showImage = (img) => {
+const showImage = (img, opacity) => {
+  context.save();
+  context.globalAlpha = opacity;
   context.drawImage(img, 0, 0, window.innerWidth, window.innerHeight);
+  context.restore();
 };
 
 //clear all images
@@ -217,7 +220,7 @@ const loop = (timestamp) => {
           const length = playItem.images.length;
           //only show current image
           const image = playItem.images[playItem.index];
-          showImage(image);
+          showImage(image, .2);
           playItem.index++;
 
           //when we reached the final png in the sequence
