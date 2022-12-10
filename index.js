@@ -37,13 +37,8 @@ const serialPort = serialport.SerialPort;
 
 //////// PNG SEQUENCES  //////////
 //count the amount of png sequences and number of pngs per sequence for each screen
-// const amountOfScreens = 3;
-// const amountOfVersions = 2;
-// const screenSequences = [];
 const screenSequences = {};
 const getPngSequences = async () => {
-
-
   for (let i = 1; i <= amountOfVersions; i++) {
     screenSequences[`version-${i}`] = [];
     for (let j = 1; j <= amountOfScreens; j++) {
@@ -97,7 +92,6 @@ const changeOutput = () => {
   output.openPort(outputOptions[selectedOutput]);
 
   //get the version related to this new output port
-  console.log(output.getPortName(outputOptions[selectedOutput]));
   const versionObject = versionRelations.find((item) =>
     output.getPortName(outputOptions[selectedOutput]).includes(item.portName)
   );
