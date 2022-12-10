@@ -161,7 +161,7 @@ const pngSequenceInit = () => {
       if (info.short) {
         durationState = "short";
       }
-
+      console.log(durationState);
       //if no state is true, we remove the animation info from the playing list and hide the images
       if (!durationState) {
         const previous = playInfo.find(
@@ -175,14 +175,16 @@ const pngSequenceInit = () => {
         //reset index
         info.index = 0;
         //get right images
-        const animationImages = imagesList.find(
+        const animationImages = imagesList[`version-${info.version}`].find(
           (item) => item.name === `animation-${info.animation}`
         );
+        console.log(animationImages);
         if (animationImages){
           info.images = animationImages[durationState];
         }
         //add the new animation info to the list of currently playing animaitions
         playInfo.push(info);
+        console.log(playInfo);
       }
     }
   });
@@ -210,7 +212,7 @@ export const onLoadedImage = () => {
     console.log("all images loaded");
     console.log(imagesList);
     //start the loop
-    // window.requestAnimationFrame(loop);
+    window.requestAnimationFrame(loop);
   }
 }
 
@@ -222,7 +224,7 @@ const loop = (timestamp) => {
     clearCanvas();
     previousTime = currentTime - (deltaTime % interval);
     // if (totalLoadedImages === loadedImagesLimit) {
-      if (imagesList.length > 0) {
+      // if (imagesList.length > 0) {
         for (let j = 0; j < playInfo.length; j++) {
           const playItem = playInfo[j];
           const length = playItem.images.length;
@@ -246,7 +248,7 @@ const loop = (timestamp) => {
           }
         }
       }
-    } 
+    // } 
   // }
 
   window.requestAnimationFrame(loop);
