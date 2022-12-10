@@ -22,6 +22,7 @@ import {
   endSignalType,
   midiType,
   velocityScale,
+  versionRelations
 } from "./src/js/node-functions/midi-info.js";
 import {
   animationList,
@@ -58,6 +59,8 @@ let selectedOutput = 0;
 let outputOptions;
 const currentNotes = [];
 
+let currentVersion = versionRelations[0].version;
+
 //MIDI OUTPUT
 //setting up MIDI output
 const setupMIDIOutput = () => {
@@ -92,6 +95,15 @@ const changeOutput = () => {
     selectedOutput = 0;
   }
   output.openPort(outputOptions[selectedOutput]);
+
+  //get the version related to this new output port
+  console.log(output.getPortName(outputOptions[selectedOutput]));
+  const versionObject = versionRelations.find((item) =>
+    output.getPortName(outputOptions[selectedOutput]).includes(item.portName)
+  );
+  if (versionObject){
+    currentVersion = versionObject.version;
+  }
 
   //resend the current MIDI signals when new output port is opened
   currentNotes.forEach((note) => {
@@ -248,6 +260,7 @@ const handleMidiInput = (deltaTime, message) => {
           console.log("stop long animation", selectedAnimation.animationInfo);
           io.emit("pngs", {
             ...selectedAnimation.animationInfo,
+            version: currentVersion,
             long: false,
           });
           // }
@@ -405,11 +418,12 @@ const arduinoReadingInit = () => {
         if (line === item.arduinoEnd) {
           if (animationList[index].counter > 0) {
             animationList[index].ended = true;
-            io.emit("pngs", { ...item.animationInfo, long: true });
+            io.emit("pngs", { ...item.animationInfo, long: true, version: currentVersion });
           } else {
             io.emit("pngs", {
               ...item.animationInfo,
               short: true,
+              version: currentVersion
             });
           }
         }

@@ -9,7 +9,7 @@ export const animationList = [
     arduinoEnd: "animation-end",
     animationInfo: {
       screen: 1,
-      animation: 4,
+      animation: 2,
     },
   },
   {
@@ -34,8 +34,8 @@ export const animationList = [
     ended: false,
     arduinoEnd: "animation3-end",
     animationInfo: {
-      screen: 3,
-      animation: 3,
+      screen: 1,
+      animation: 1,
     },
   },
 ];
@@ -73,7 +73,6 @@ const brightnessList = [
   "Y",
   "Z",
 ];
-
 
 export const getBrightnessCode = (number) => {
   const index = Math.floor(number / 4);
