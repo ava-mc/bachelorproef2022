@@ -243,7 +243,6 @@ const loop = (timestamp) => {
             if (playItem.short) {
               //remove the previous play info for this animation, if there was info about it already
               playInfo.splice(playInfo.indexOf(playItem), 1);
-              clearCanvas();
             }
           }
         }
