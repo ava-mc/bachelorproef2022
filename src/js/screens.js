@@ -137,6 +137,49 @@ let previousTime = startTime;
 let currentTime = 0;
 let deltaTime = 0;
 
+let animationIndex = 0;
+let pngIndex = 0;
+let version = 1;
+let duration = "short";
+let opacity = 0;
+let loadingNotification = false;
+let loadingCounter = 0;
+
+const playAllAnimations = () => {
+  const image =
+    imagesList?.[`version-${version}`]?.[animationIndex]?.[duration][pngIndex];
+  if (image) {
+    showImage(image, opacity);
+    pngIndex++;
+
+    if (
+      pngIndex >=
+      imagesList[`version-${version}`][animationIndex][duration].length
+    ) {
+      pngIndex = 0;
+      if (duration == "short") {
+        duration = "long";
+      } else {
+        duration = "short";
+        animationIndex++;
+        if (animationIndex >= imagesList[`version-${version}`].length) {
+          version++;
+          animationIndex = 0;
+          if (version > amountOfVersions) {
+            version = 1;
+            loadingNotification = true;
+            if (loadingCounter==0){
+              document.querySelector('.title').textContent = 'ready for animations';
+              console.log('ready for animations');
+            }
+            loadingCounter++;
+          }
+        }
+      }
+    }
+  }
+}
+
 //bundling socket events related to png sequences logic
 const pngSequenceInit = () => {
   // get the info about the animations related to this screen
@@ -236,6 +279,8 @@ const loop = (timestamp) => {
     previousTime = currentTime - (deltaTime % interval);
     // if (totalLoadedImages === loadedImagesLimit) {
     // if (imagesList.length > 0) {
+      playAllAnimations();
+      if (loadingNotification){
     for (let j = 0; j < playInfo.length; j++) {
       const playItem = playInfo[j];
       const length = playItem.images.length;
@@ -258,6 +303,7 @@ const loop = (timestamp) => {
       }
     }
   }
+}
   // }
   // }
 
