@@ -24,6 +24,7 @@ export const loadTypedImages = async (
   version, 
   loadedFunction
 ) => {
+    console.log(name, length);
   for (let j = 0; j < length; j++) {
     let numberString = j.toString();
     const numberlength = numberString.length;
@@ -70,7 +71,8 @@ export const loadImages = async (animationInfo, version, loadedFunction) => {
       currentAnimationFolder.short,
       screenName,
       i,
-      version, loadedFunction
+      version, 
+      loadedFunction
     );
     imagesList.push(imagesObject);
     console.log(imagesList);
