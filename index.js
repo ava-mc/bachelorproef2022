@@ -321,9 +321,9 @@ const websocketInit = () => {
         //send the right animation info based on the screen choice
         const info = {};
         for (const [version, list] of Object.entries(screenSequences)) {
-          info[version] = (list.find(
+          info[version] = list.find(
             (item) => item.name.charAt(item.name.length - 1) == chosenScreen
-          ));
+          );
         }
         socket.emit(
           "animation-info",
@@ -344,6 +344,11 @@ const websocketInit = () => {
           //start the screensaver timer for the first time
           startScreensaverTimer();
         }
+      });
+
+      socket.on("reset", () => {
+        //redirect all sockets to the main site, this way they all disconnect and are handled in the disconnect event
+        io.emit("resetScreen");
       });
     }
   });

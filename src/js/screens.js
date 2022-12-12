@@ -7,7 +7,6 @@ import { amountOfVersions } from "./lib.js";
 
 /////// SCREEN SELECTION LOGIC ////////
 let currentScreen;
-// let $screensaverSpan;
 
 //get which screen is selected from the querystring
 const getScreenSelection = () => {
@@ -103,6 +102,18 @@ const screenSelectionInit = () => {
       const disableScreen = document.querySelector(`.screen-choice-${screen}`);
       disableScreen.classList.add("screen-chosen");
     });
+  });
+
+  //redirect when socket gets disconnected
+  socket.on("disconnect", () => {
+    // redirect to new URL
+    window.location = "/";
+  });
+
+  //catch the emit to reset screen
+  socket.on("resetScreen", () => {
+    // redirect to new URL
+    window.location = "/";
   });
 };
 
@@ -307,6 +318,11 @@ const init = () => {
     $canvas.width = window.innerWidth;
     $canvas.height = window.innerHeight;
   });
+
+  const $reset = document.getElementById("reset");
+  $reset.addEventListener('click', ()=> {
+    socket.emit("reset");
+  })
 };
 
 init();
