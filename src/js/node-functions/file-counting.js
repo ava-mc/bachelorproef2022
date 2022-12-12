@@ -8,13 +8,15 @@ export const addFileAmount = async (dir, list, name, index) => {
   const shortDir = `${dir}/short`;
   fs.readdir(longDir, (err, files) => {
     // if (!files) return;
-    let amount = files.length;
+    const newFiles = files.filter((item) => item.includes('animation'));
+    let amount = newFiles.length;
     object.long = amount;
     console.log(list);
   });
   fs.readdir(shortDir, (err, files) => {
     // if (!files) return;
-    let amount = files.length;
+    const newFiles = files.filter((item) => item.includes("animation"));
+    let amount = newFiles.length;
         object.short = amount;
         console.log(list);
   });
@@ -25,9 +27,9 @@ export const addFileAmount = async (dir, list, name, index) => {
 export const getAmountOfAnimations = async (dir, list, name, index) => {
   fs.readdir(dir, (err, files) => {
     console.log(files);
-    const nwFiles = files.filter(item => item!= '.DS_Store');
-    console.log(files, nwFiles);
-    let amount = nwFiles.length;
+    const newFiles = files.filter(item => item!= '.DS_Store');
+    console.log(files, newFiles);
+    let amount = newFiles.length;
     let object = {};
     object.name = `${name}-${index}`;
     object.animations = [];
