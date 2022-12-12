@@ -1,4 +1,3 @@
-import { onLoadedImage } from "../screens.js";
 
 //load a single image
 export const loadImage = (src, loaded) => {
@@ -22,7 +21,8 @@ export const loadTypedImages = async (
   length,
   screenName,
   screenIndex,
-  version
+  version, 
+  loadedFunction
 ) => {
   for (let j = 0; j < length; j++) {
     let numberString = j.toString();
@@ -37,7 +37,7 @@ export const loadTypedImages = async (
       }/${name}/animation-${
         screenIndex + 1
       }-${name}_${zeros}${numberString}.png`,
-      onLoadedImage
+      loadedFunction
     );
     console.log(image);
     object[name].push(image);
@@ -45,7 +45,7 @@ export const loadTypedImages = async (
 };
 
 //Load png sequences in a structured way
-export const loadImages = async (animationInfo, version) => {
+export const loadImages = async (animationInfo, version, loadedFunction) => {
   const imagesList = [];
   const animationList = animationInfo.animations;
   const screenName = animationInfo.name;
@@ -61,7 +61,8 @@ export const loadImages = async (animationInfo, version) => {
       currentAnimationFolder.long,
       screenName,
       i,
-      version
+      version, 
+      loadedFunction
     );
     loadTypedImages(
       imagesObject,
@@ -69,7 +70,7 @@ export const loadImages = async (animationInfo, version) => {
       currentAnimationFolder.short,
       screenName,
       i,
-      version
+      version, loadedFunction
     );
     imagesList.push(imagesObject);
     console.log(imagesList);

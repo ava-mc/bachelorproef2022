@@ -39,6 +39,19 @@ const clearCanvas = () => {
   context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 };
 
+let totalLoadedImages = 0;
+let loadedImagesLimit = 0;
+const onLoadedImage = () => {
+  totalLoadedImages++;
+  if (totalLoadedImages === loadedImagesLimit) {
+    // console.log("all images loaded");
+    // console.log(imagesList);
+    document.getElementById("title").textContent = "done loading";
+    //start the loop
+    window.requestAnimationFrame(loop);
+  }
+};
+
 let animationIndex = 0;
 let pngIndex = 0;
 let version = 1;
@@ -96,11 +109,21 @@ const init = async () => {
   for (let i = 1; i <= amountOfVersions; i++) {
     const version = `version-${i}`;
     //get the right images linked to the info about the animations of this screen
-    imagesList[version] = await loadImages(animationInfo[version], version);
+    imagesList[version] = await loadImages(
+      animationInfo[version],
+      version,
+      onLoadedImage
+    );
     console.log(imagesList);
+
+    for (let j = 0; j < animationInfo[version].animations.length; j++) {
+      loadedImagesLimit += animationInfo[version].animations[j].long;
+      loadedImagesLimit += animationInfo[version].animations[j].short;
+      console.log(loadedImagesLimit);
+    }
   }
   console.log("the animation info:", animationInfo);
-  requestAnimationFrame(loop);
+  //   requestAnimationFrame(loop);
 };
 
 init();
