@@ -1,0 +1,7 @@
+#!/bin/sh
+numberofbrowsers=3
+echo $numberofbrowsers
+dir="/Users/avamc/OneDrive\ -\ Hogeschool\ West-Vlaanderen/BACHELORPROEF/bachelorproef-repo/"
+eval cd $dir
+node index.js
+echo "started node server"
