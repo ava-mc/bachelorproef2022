@@ -1,6 +1,8 @@
 #!/bin/sh
-dir="/Users/avamc/OneDrive\ -\ Hogeschool\ West-Vlaanderen/BACHELORPROEF/bachelorproef-repo/"
-eval cd $dir
+dir=$(find $PWD -type d | grep "bachelorproef-repo" -m1)
+echo $dir
+newdir=${dir// /"\ "}
+echo $newdir
+eval cd $newdir
 node index.js
-
 echo "started node server"
