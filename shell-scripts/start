@@ -1,7 +1,15 @@
 #!/bin/sh
 numberofbrowsers=3
+url="http://localhost:3000/"
 echo $numberofbrowsers
 dir="/Users/avamc/OneDrive\ -\ Hogeschool\ West-Vlaanderen/BACHELORPROEF/bachelorproef-repo/"
 eval cd $dir
 node index.js
+
+for (( c=1; c<=$numberofbrowsers; c++ ))
+do 
+   firefox --new-window $url
+   echo "i open a browser"
+done
+
 echo "started node server"

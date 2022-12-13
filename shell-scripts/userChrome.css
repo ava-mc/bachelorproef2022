@@ -1,0 +1,22 @@
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"); /* set default namespace to XUL */
+
+#navigator-toolbox[inFullscreen] {
+  position: relative;
+  z-index: 1;
+  height: 3px;
+  margin-bottom: -3px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+#navigator-toolbox[inFullscreen]:hover {
+  height: auto;
+  margin-bottom: 0px;
+  opacity: 1;
+  overflow: show;
+}
+
+#content-deck[inFullscreen] {
+  position: relative;
+  z-index: 0;
+}
