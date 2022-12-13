@@ -1,15 +1,8 @@
 #!/bin/sh
-numberofbrowsers=3
-url="http://localhost:3000/"
-echo $numberofbrowsers
-dir="/Users/avamc/OneDrive\ -\ Hogeschool\ West-Vlaanderen/BACHELORPROEF/bachelorproef-repo/"
-eval cd $dir
+dir=$(find $PWD -type d | grep "bachelorproef-repo" -m1)
+echo $dir
+newdir=${dir// /"\ "}
+echo $newdir
+eval cd $newdir
 node index.js
-
-for (( c=1; c<=$numberofbrowsers; c++ ))
-do 
-   firefox --new-window $url
-   echo "i open a browser"
-done
-
 echo "started node server"
