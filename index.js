@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import serialport from "serialport";
 import * as filepath from "path";
 import { fileURLToPath } from "url";
+import open from "open";
 
 import midi from "midi";
 import {
@@ -462,6 +463,13 @@ const initApp = () => {
   const PORT = process.env.PORT || 3000;
   server.listen(PORT, () => {
     console.log(`Our app is running on port ${PORT}`);
+
+    //open 3 firefox browsers on localhost
+    for (let i=1; i<= amountOfScreens; i++) {
+      open("http://localhost:3000/", 
+      { app: { name: "firefox" } }
+      );
+    }
   });
 };
 
