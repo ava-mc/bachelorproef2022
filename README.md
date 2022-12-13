@@ -35,8 +35,11 @@ We use 3 virtual output ports on our Mac device to connect to different sounds i
    - Go to the 'Audio MIDI Setup' app on your computer
    - Go to Window > Show MIDI Studio
    - You should see the following screen:
+   
    <img width="509" alt="image" src="https://user-images.githubusercontent.com/91590248/207342836-ccf61c2c-0629-4895-83be-7c4ee230c435.png">
+   
    - Create 3 virtual MIDI ports by pressing the plus button. Give them the names 'Test 1', 'Test 2' and 'Test 3'. And press apply.
+  
    <img width="509" alt="image" src="https://user-images.githubusercontent.com/91590248/207344305-d404336c-353d-4751-9d9f-bd31c3f9629a.png">
 
     
