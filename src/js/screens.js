@@ -274,7 +274,7 @@ const onLoadedImage = () => {
 const loop = (timestamp) => {
   currentTime = timestamp;
   deltaTime = currentTime - previousTime;
-  if (deltaTime > interval) {
+  if (deltaTime >= interval) {
     clearCanvas();
     previousTime = currentTime - (deltaTime % interval);
     // if (totalLoadedImages === loadedImagesLimit) {
