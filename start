@@ -1,5 +1,6 @@
 #!/bin/sh
 # dir=$(find $PWD -type d | grep "bachelorproef-repo" -m1)
+killall firefox
 dir=$(find '/Users' -type d | grep "bachelorproef-repo" -m1)
 echo $dir
 newdir=${dir// /"\ "}
