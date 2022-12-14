@@ -13,7 +13,7 @@ import {
   amountOfScreens,
   amountOfVersions,
 } from "./src/js/lib.js";
-import { getAmountOfAnimations} from "./src/js/node-functions/file-counting.js";
+import { getAmountOfAnimations } from "./src/js/node-functions/file-counting.js";
 import {
   startScreensaverTimer,
   stopScreenSaverTimer,
@@ -23,7 +23,8 @@ import {
   endSignalType,
   midiType,
   velocityScale,
-  versionRelations
+  versionRelations,
+  generalPortName,
 } from "./src/js/node-functions/midi-info.js";
 import {
   animationList,
@@ -44,7 +45,12 @@ const getPngSequences = async () => {
     screenSequences[`version-${i}`] = [];
     for (let j = 1; j <= amountOfScreens; j++) {
       const folder = `src/assets/pngseq/version-${i}/screen-${j}/`;
-      getAmountOfAnimations(folder, screenSequences[`version-${i}`], "screen", j);
+      getAmountOfAnimations(
+        folder,
+        screenSequences[`version-${i}`],
+        "screen",
+        j
+      );
     }
   }
 };
@@ -96,7 +102,7 @@ const changeOutput = () => {
   const versionObject = versionRelations.find((item) =>
     output.getPortName(outputOptions[selectedOutput]).includes(item.portName)
   );
-  if (versionObject){
+  if (versionObject) {
     currentVersion = versionObject.version;
   }
 
@@ -110,7 +116,7 @@ const changeOutput = () => {
 const getOutputOptions = (output) => {
   const outputOptions = [];
   for (let i = 0; i < output.getPortCount(); i++) {
-    if (output.getPortName(i).includes("Test")) {
+    if (output.getPortName(i).includes(generalPortName)) {
       outputOptions.push(i);
       console.log(outputOptions);
     }
@@ -137,7 +143,7 @@ const getMIDIInputPort = (input) => {
   if (input.getPortCount() > 0) {
     // Get the name of a specified input port.
     for (let i = 0; i < input.getPortCount(); i++) {
-      if (!input.getPortName(i).includes("Test")) {
+      if (!input.getPortName(i).includes(generalPortName)) {
         return i;
       }
     }
@@ -418,12 +424,16 @@ const arduinoReadingInit = () => {
         if (line === item.arduinoEnd) {
           if (animationList[index].counter > 0) {
             animationList[index].ended = true;
-            io.emit("pngs", { ...item.animationInfo, long: true, version: currentVersion });
+            io.emit("pngs", {
+              ...item.animationInfo,
+              long: true,
+              version: currentVersion,
+            });
           } else {
             io.emit("pngs", {
               ...item.animationInfo,
               short: true,
-              version: currentVersion
+              version: currentVersion,
             });
           }
         }
@@ -465,10 +475,8 @@ const initApp = () => {
     console.log(`Our app is running on port ${PORT}`);
 
     //open 3 firefox browsers on localhost
-    for (let i=1; i<= amountOfScreens; i++) {
-      open("http://localhost:3000/", 
-      { app: { name: "firefox" } }
-      );
+    for (let i = 1; i <= amountOfScreens; i++) {
+      open("http://localhost:3000/", { app: { name: "firefox" } });
     }
   });
 };
