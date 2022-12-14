@@ -25,14 +25,20 @@ String animationEndMessage[numberOfLedStrips] = {"animation-end", "animation2-en
 char startAnimationSign[numberOfLedStrips] = {'1', '2', '3'};
 char startLongPressSign[numberOfLedStrips] = {'a', 'c', 'e'};
 char endLongPressSign[numberOfLedStrips] = {'b', 'd', 'f'};
-int R[numberOfLedStrips] = {1, 0, 1};
-int G[numberOfLedStrips] = {1, 1, 0};
-int B[numberOfLedStrips] = {0, 1, 1};
+// int R[numberOfLedStrips] = {1, 0, 1};
+// int G[numberOfLedStrips] = {1, 1, 0};
+// int B[numberOfLedStrips] = {0, 1, 1};
+float R[numberOfLedStrips] = {2.3, 1.6, 0.6};
+float G[numberOfLedStrips] = {1.1, 1.7, 2.4};
+float B[numberOfLedStrips] = {2.3, 2.4, 1.9};
 
 
 int brightness[numberOfLedStrips] = {100, 100, 100};
 int maxBrightness = 127;
 int currentBrightness = 100;
+// float brightness[numberOfLedStrips] = {100, 100, 100};
+// float maxBrightness = 127;
+// float currentBrightness = 100;
 
 int flickerDelay = 40;
 unsigned long currentTime;
@@ -230,7 +236,7 @@ for (int i = 0; i < numberOfLedStrips;i++) {
       startTime[i] = currentTime;
       if (pixelNumber[i] <= pixelNumberEnd[i])
       {
-        NeoPixel.setPixelColor(pixelNumber[i], NeoPixel.Color(brightness[i]*R[i], brightness[i]*G[i], brightness[i]*B[i]));
+        NeoPixel.setPixelColor(pixelNumber[i], NeoPixel.Color(round(float(brightness[i])*R[i]), round(float(brightness[i])*G[i]), round(float(brightness[i])*B[i])));
       }
       if (pixelNumber[i] >= pixelNumberStart[i] + SIZE - 1)
       {
@@ -258,7 +264,9 @@ for (int i = 0; i < numberOfLedStrips;i++) {
         }
          else
         {
-          turnOn(pixelNumberStart[i], pixelNumberEnd[i], brightness[i]*R[i], brightness[i]*G[i], brightness[i]*B[i]);
+          // turnOn(pixelNumberStart[i], pixelNumberEnd[i], brightness[i]*R[i], brightness[i]*G[i], brightness[i]*B[i]);
+          turnOn(pixelNumberStart[i], pixelNumberEnd[i], round(float(brightness[i])*R[i]), round(float(brightness[i])*G[i]), round(float(brightness[i])*B[i]));
+          
         }
       }
     }
