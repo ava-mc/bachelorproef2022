@@ -205,40 +205,43 @@ const pngSequenceInit = () => {
   //get the info about which png sequences should be playing currently
   socket.on("pngs", (info) => {
     console.log(info, info.brightness);
-    //check whether the info is relevant for this screen
-    if (info.screen == currentScreen) {
-      //get the duration state
-      let durationState;
-      if (info.long) {
-        durationState = "long";
-      }
-      if (info.short) {
-        durationState = "short";
-      }
-      console.log(durationState);
-      //if no state is true, we remove the animation info from the playing list and hide the images
-      if (!durationState) {
-        const previous = playInfo.find(
-          (item) => item.animation === info.animation
-        );
-        if (previous) {
-          playInfo.splice(playInfo.indexOf(previous), 1);
+    //only handle animation cues when loading is ready
+    if (loadingNotification) {
+      //check whether the info is relevant for this screen
+      if (info.screen == currentScreen) {
+        //get the duration state
+        let durationState;
+        if (info.long) {
+          durationState = "long";
         }
-        clearCanvas();
-      } else {
-        //reset index
-        info.index = 0;
-        //get right images
-        const animationImages = imagesList[`version-${info.version}`].find(
-          (item) => item.name === `animation-${info.animation}`
-        );
-        console.log(animationImages);
-        if (animationImages) {
-          info.images = animationImages[durationState];
+        if (info.short) {
+          durationState = "short";
         }
-        //add the new animation info to the list of currently playing animaitions
-        playInfo.push(info);
-        console.log(playInfo);
+        console.log(durationState);
+        //if no state is true, we remove the animation info from the playing list and hide the images
+        if (!durationState) {
+          const previous = playInfo.find(
+            (item) => item.animation === info.animation
+          );
+          if (previous) {
+            playInfo.splice(playInfo.indexOf(previous), 1);
+          }
+          clearCanvas();
+        } else {
+          //reset index
+          info.index = 0;
+          //get right images
+          const animationImages = imagesList[`version-${info.version}`].find(
+            (item) => item.name === `animation-${info.animation}`
+          );
+          console.log(animationImages);
+          if (animationImages) {
+            info.images = animationImages[durationState];
+          }
+          //add the new animation info to the list of currently playing animaitions
+          playInfo.push(info);
+          console.log(playInfo);
+        }
       }
     }
   });
