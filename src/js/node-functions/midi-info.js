@@ -10,19 +10,21 @@ const endSignalType = midiType[0];
 
 const velocityScale = 127;
 
+const generalPortName = "Test"
+
 const versionRelations = [
   {
-    portName: "Test 1",
+    portName: `${generalPortName} 1`,
     version: 1,
   },
   {
-    portName: "Test 2",
+    portName: `${generalPortName} 2`,
     version: 2,
   },
   {
-    portName: "Test 3",
-    version: 1,
+    portName: `${generalPortName} 3`,
+    version: 3,
   },
 ];
 
-export { midiType, endSignal, endSignalType, velocityScale, versionRelations };
+export { midiType, endSignal, endSignalType, velocityScale, versionRelations, generalPortName };
