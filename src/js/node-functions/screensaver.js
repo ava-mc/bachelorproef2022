@@ -6,7 +6,7 @@ let screenSaverCounter = 0;
 const screenSaverMaxWait = 10;
 
 const showScreenSaver = () => {
-  writeToArduino("s");
+  writeToArduino("x");
 };
 
 export const startScreensaverTimer = () => {
@@ -32,7 +32,7 @@ export const startScreensaverTimer = () => {
 export const stopScreenSaverTimer = () => {
   console.log("stop screensaver");
   //let arduino now to stop
-  writeToArduino("t");
+  writeToArduino("y");
 
   //stop timer
   clearInterval(screenSaverTimer);

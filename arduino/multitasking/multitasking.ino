@@ -6,33 +6,33 @@
 #endif
 
 #define PIN_NEO_PIXEL  16   // Arduino pin that connects to NeoPixel
-#define NUM_PIXELS     30  // The number of LEDs (pixels) on NeoPixel
+#define NUM_PIXELS     150  // The number of LEDs (pixels) on NeoPixel
 #define SIZE 5
 
 
 char incomingByte = 0; // for incoming serial data
-const int numberOfLedStrips = 3;
+const int numberOfLedStrips = 10;
 
-bool longPress[numberOfLedStrips] = {false, false, false};
-bool startAnimation[numberOfLedStrips] = {false, false, false};
-unsigned long startTime[numberOfLedStrips] = {0, 0, 0};
-int pixelNumberStart[numberOfLedStrips] = {0, 10, 20};
-int pixelNumberEnd[numberOfLedStrips] = {9, 19, 29};
+bool longPress[numberOfLedStrips] = {false, false, false, false, false, false, false, false, false, false};
+bool startAnimation[numberOfLedStrips] = {false, false, false, false, false, false, false, false, false, false};
+unsigned long startTime[numberOfLedStrips] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int pixelNumberStart[numberOfLedStrips] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90};
+int pixelNumberEnd[numberOfLedStrips] = {9, 19, 29, 39, 49, 59, 69, 79, 89, 99};
 int pixelNumber[numberOfLedStrips];
-unsigned long startFlicker[numberOfLedStrips] = {0, 0, 0};
-bool flickerTimer[numberOfLedStrips] = {false, false, false};
-String animationEndMessage[numberOfLedStrips] = {"animation-end", "animation2-end", "animation3-end"};
-char startAnimationSign[numberOfLedStrips] = {'1', '2', '3'};
-char startLongPressSign[numberOfLedStrips] = {'a', 'c', 'e'};
-char endLongPressSign[numberOfLedStrips] = {'b', 'd', 'f'};
+unsigned long startFlicker[numberOfLedStrips] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+bool flickerTimer[numberOfLedStrips] = {false, false, false, false, false, false, false, false, false, false};
+String animationEndMessage[numberOfLedStrips] = {"animation0-end", "animation1-end", "animation2-end", "animation3-end", "animation4-end", "animation5-end", "animation6-end", "animation7-end", "animation8-end", "animation9-end"};
+char startAnimationSign[numberOfLedStrips] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+char startLongPressSign[numberOfLedStrips] = {'a', 'c', 'e', 'g', 'i', 'k', 'm', 'o', 'q', 's'};
+char endLongPressSign[numberOfLedStrips] = {'b', 'd', 'f', 'h','j', 'l', 'n', 'p', 'r','t'};
 // int R[numberOfLedStrips] = {1, 0, 1};
 // int G[numberOfLedStrips] = {1, 1, 0};
 // int B[numberOfLedStrips] = {0, 1, 1};
-float R[numberOfLedStrips] = {.5, 1, .5};
-float G[numberOfLedStrips] = {1, .5, 0};
-float B[numberOfLedStrips] = {0, 0, 1};
+float R[numberOfLedStrips] = {.5, .5, 1, 1, 1, 1, 1, 0, .5, 0};
+float G[numberOfLedStrips] = {1, 1, 0, .5, 0, 0, 0, 1, 0, 1};
+float B[numberOfLedStrips] = {0, 0, 1, 0, 1, 1, 0, 1, 1, 1};
 
-int brightness[numberOfLedStrips] = {100, 100, 100};
+int brightness[numberOfLedStrips] = {100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
 int maxBrightness = 127;
 int currentBrightness = 100;
 
@@ -131,14 +131,14 @@ void loop() {
         }
       }
 
-     if (incomingByte =='s') {
+     if (incomingByte =='x') {
       playScreenSaver = true;
       fadingStart = currentTime;
       fadingPoint = 0;
       fadingSwitch = true;
      }
 
-    if (incomingByte=='t') {
+    if (incomingByte=='y') {
       playScreenSaver = false;
       clearPixels(0, NUM_PIXELS);
     }
