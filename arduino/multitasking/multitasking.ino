@@ -6,7 +6,7 @@
 #endif
 
 #define PIN_NEO_PIXEL  16   // Arduino pin that connects to NeoPixel
-#define NUM_PIXELS     150  // The number of LEDs (pixels) on NeoPixel
+#define NUM_PIXELS     99  // The number of LEDs (pixels) on NeoPixel
 #define SIZE 5
 
 
@@ -45,7 +45,7 @@ bool playScreenSaver = false;
 // unsigned long screensaverStart = 0;
 // unsigned long screensaverDelay = 8000;
 bool screenSaverTimer = false;
-int fadingDelay = 50;
+int fadingDelay = 40;
 unsigned long fadingStart = 0;
 int fadingPoint = 0;
 int fadingMax = 100;
@@ -148,10 +148,11 @@ if (playScreenSaver == true) {
         if (currentTime-fadingStart>=fadingDelay){
           fadingStart = currentTime;
           if (fadingPoint<=fadingMax&&fadingPoint>=fadingMin){
-            for (int i = 0; i <= NUM_PIXELS;i++) {
-            NeoPixel.setPixelColor(i, fadingPoint, fadingPoint, fadingPoint);
-            NeoPixel.show();
-          }
+           // for (int i = 0; i <= NUM_PIXELS;i++) {
+          //  NeoPixel.setPixelColor(i, fadingPoint, fadingPoint, fadingPoint);
+          //  NeoPixel.show();
+          //}
+          turnOn(0, NUM_PIXELS, fadingPoint, fadingPoint, fadingPoint, 2);
           }
 
           //let server know when to switch the transition on the screen
@@ -220,7 +221,7 @@ for (int i = 0; i < numberOfLedStrips;i++) {
         }
          else
         {
-          turnOn(pixelNumberStart[i], pixelNumberEnd[i], round(float(brightness[i])*R[i]), round(float(brightness[i])*G[i]), round(float(brightness[i])*B[i]));
+          turnOn(pixelNumberStart[i], pixelNumberEnd[i], round(float(brightness[i])*R[i]), round(float(brightness[i])*G[i]), round(float(brightness[i])*B[i]), 1);
           
         }
       }
@@ -262,13 +263,12 @@ void clearPixels(int START, int END) {
 }
 
 
-void turnOn(int START, int END, int R, int G, int B) {
+void turnOn(int START, int END, int R, int G, int B, int step) {
   // Serial.print(R);
-  for (int pixel = START; pixel <= END; pixel++)
+  for (int pixel = START; pixel <= END; pixel+=step)
   {
     NeoPixel.setPixelColor(pixel, NeoPixel.Color(R, G, B));
     }
     NeoPixel.show();
 }
-
 
