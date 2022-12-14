@@ -28,17 +28,14 @@ char endLongPressSign[numberOfLedStrips] = {'b', 'd', 'f'};
 // int R[numberOfLedStrips] = {1, 0, 1};
 // int G[numberOfLedStrips] = {1, 1, 0};
 // int B[numberOfLedStrips] = {0, 1, 1};
-float R[numberOfLedStrips] = {2.3, 1.6, 0.6};
-float G[numberOfLedStrips] = {1.1, 1.7, 2.4};
-float B[numberOfLedStrips] = {2.3, 2.4, 1.9};
-
+float R[numberOfLedStrips] = {.5, 1, .5};
+float G[numberOfLedStrips] = {1, .5, 0};
+float B[numberOfLedStrips] = {0, 0, 1};
 
 int brightness[numberOfLedStrips] = {100, 100, 100};
 int maxBrightness = 127;
 int currentBrightness = 100;
-// float brightness[numberOfLedStrips] = {100, 100, 100};
-// float maxBrightness = 127;
-// float currentBrightness = 100;
+
 
 int flickerDelay = 40;
 unsigned long currentTime;
@@ -61,23 +58,6 @@ const char startOfNumberDelimiter = '<';
 const char endOfNumberDelimiter   = '>';
 
 Adafruit_NeoPixel NeoPixel(NUM_PIXELS, PIN_NEO_PIXEL, NEO_GRB + NEO_KHZ800);
-
-// char asciiList[127] = {
-//     'ÿ', 'þ', 'ý', 'ü', 'û', 'ú', 'ù', 'ø', '÷',
-//     'ö', 'õ', 'ô', 'ó', 'ò', 'ñ', 'ð', 'ï', 'î',
-//     'í', 'ì', 'ë', 'ê', 'é', 'è', 'ç', 'æ', 'å',
-//     'ä', 'ã', 'â', 'á', 'à', 'ß', 'Þ', 'Ý', 'Ü',
-//     'Û', 'Ú', 'Ù', 'Ø', '×', 'Ö', 'Õ', 'Ô', 'Ó',
-//     'Ò', 'Ñ', 'Ð', 'Ï', 'Î', 'Í', 'Ì', 'Ë', 'Ê',
-//     'É', 'È', 'Ç', 'Æ', 'Å', 'Ä', 'Ã', 'Â', 'Á',
-//     'À', '¿', '¾', '½', '¼', '»', 'º', '¹', '¸',
-//     '·', '¶', 'µ', '´', '³', '²', '±', '°', '¯',
-//     '®', '­', '¬', '«', 'ª', '©', '¨', '§', '¦',
-//     '¥', '¤', '£', '¢', '¡', ' ', '\x9F', '\x9E', '\x9D',
-//     '\x9C', '\x9B', '\x9A', '\x99', '\x98', '\x97', '\x96',
-//   '\x95', '\x94', '\x93', '\x92', '\x91', '\x90', '\x8F',
-//   '\x8E', '\x8D', '\x8C', '\x8B', '\x8A', '\x89', '\x88',
-//   '\x87', '\x86', '\x85', '\x84', '\x83', '\x82', '\x81'};
 
 char BrightnessCodes[26] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
 
@@ -113,32 +93,16 @@ void loop() {
   currentTime = millis();
   if (Serial.available() > 0)
   {
-    // processInput();
 
     incomingByte = Serial.read();
-    // Serial.print(atoi(incomingByte));
-    // Serial.print(Serial.readString());
-    // Serial.print(Serial.readString().toInt());
-    //char test[1] = {incomingByte};
-    // test[0] = incomingByte;
-    // if (atoi(test)<127&&atoi(test)>0) {
-    //   Serial.print(atoi(test));
-    // }
-    // for (int i = 0; i < sizeof(asciiList);i++){
-    //   if (incomingByte==asciiList[i]){
-    //     currentBrightness = i;
-    //   }
-    // }
-
     if (incomingByte=='z') {
-      // Serial.print("screensavertime" +(fadingDelay*(fadingMax-fadingMin)));
-      // Serial.print((fadingDelay*(fadingMax-fadingMin)));
       Serial.print("screensavertime" + String(screensaverLength));
     }
 
      for (int i = 0; i < sizeof(BrightnessCodes);i++){
       if (incomingByte==BrightnessCodes[i]){
         currentBrightness = (i+1)*8;
+        Serial.print(currentBrightness);
       }
     }
 
@@ -157,22 +121,18 @@ void loop() {
         {
           longPress[i] = true;
           startFlicker[i] = currentTime;
-          // brightness[i] = currentBrightness;
-          // flickerTimer[i] == true;
         }
 
         if (incomingByte == endLongPressSign[i])
         {
           longPress[i] = false;
           clearPixels(pixelNumberStart[i], pixelNumberEnd[i]);
-          // startFlicker[i] = 0;
           flickerTimer[i] = false;
         }
       }
 
      if (incomingByte =='s') {
       playScreenSaver = true;
-      // screensaverStart = currentTime;
       fadingStart = currentTime;
       fadingPoint = 0;
       fadingSwitch = true;
@@ -186,7 +146,6 @@ void loop() {
 
 if (playScreenSaver == true) {
         if (currentTime-fadingStart>=fadingDelay){
-          // Serial.print(fadingPoint);
           fadingStart = currentTime;
           if (fadingPoint<=fadingMax&&fadingPoint>=fadingMin){
             for (int i = 0; i <= NUM_PIXELS;i++) {
@@ -196,9 +155,6 @@ if (playScreenSaver == true) {
           }
 
           //let server know when to switch the transition on the screen
-          // if (fadingPoint == fadingMax) {
-          //   Serial.print("opacity-up");
-          // }
           if (fadingPoint == fadingMin&&fadingSwitch==true) {
             Serial.print("opacity-up");
           }
@@ -215,6 +171,7 @@ if (playScreenSaver == true) {
             }
             if (fadingPoint>= fadingMax) {
               fadingSwitch = false;
+              //let server know when to switch the transition on the screen
               Serial.print("opacity-down");
             }
           }
@@ -256,7 +213,6 @@ for (int i = 0; i < numberOfLedStrips;i++) {
 
     if (longPress[i]==true) {
       if (currentTime - startFlicker[i]>=flickerDelay) {
-        // Serial.print(startFlicker[i]);
         startFlicker[i] = currentTime;
         flickerTimer[i] = !flickerTimer[i];
         if (flickerTimer[i]==false) {
@@ -264,7 +220,6 @@ for (int i = 0; i < numberOfLedStrips;i++) {
         }
          else
         {
-          // turnOn(pixelNumberStart[i], pixelNumberEnd[i], brightness[i]*R[i], brightness[i]*G[i], brightness[i]*B[i]);
           turnOn(pixelNumberStart[i], pixelNumberEnd[i], round(float(brightness[i])*R[i]), round(float(brightness[i])*G[i]), round(float(brightness[i])*B[i]));
           
         }
@@ -306,15 +261,6 @@ void clearPixels(int START, int END) {
   NeoPixel.show();
 }
 
-// void flicker(int START, int END, int R, int G, int B) {
-
-//     clearPixels(START, END);
-//     for (int pixel = START; pixel <= END; pixel++)
-//     {
-//       NeoPixel.setPixelColor(pixel, NeoPixel.Color(R, G, B + pixel * 10 + 20));
-//       NeoPixel.show();
-//     }
-// }
 
 void turnOn(int START, int END, int R, int G, int B) {
   // Serial.print(R);
@@ -326,49 +272,3 @@ void turnOn(int START, int END, int R, int G, int B) {
 }
 
 
-void processInput ()
-  {
-  //static long receivedNumber = 0;
-  static boolean negative = false;
-  static int readingNumber = 0;
-
-    byte c = Serial.read();
-    // Serial.print(c);
-
-    switch (c)
-    {
-      
-    case endOfNumberDelimiter:  
-      if (negative) {
-        // processNumber(- currentBrightness);
-        currentBrightness = -readingNumber;
-      }
-        
-      else {
-        // processNumber(currentBrightness);
-        currentBrightness = readingNumber;
-        }
-
-    // fall through to start a new number
-    case startOfNumberDelimiter: 
-      readingNumber = 0; 
-      negative = false;
-      break;
-      
-    case '0' ... '9': 
-      readingNumber *= 10;
-      readingNumber += c - '0';
-      break;
-      
-    case '-':
-      negative = true;
-      break;
-      
-    } // end of switch  
-  }  // end of processInput
-
-  void processNumber(const long n)
-  {
-  Serial.print(n);
-  }  // end of processNumber
-  
