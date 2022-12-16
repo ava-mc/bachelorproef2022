@@ -147,6 +147,11 @@ So, we have the following structure:
                 - file names: animation-z-short_000xx.png starting from 000000
                 
  Where x and y go from 1-3, z depends on the amount of animations on a certain screen. In our case screen 1 has 4 animations, screen 2 and 3 have 3 animations. Note that each animation needs both a short and a long version! This will be to show the difference between a note that was pressed quickly or a note that is being pressed down for a longer duration.
+ 
+ We followed the follwing scheme to number the screens and animations. So, if you want to use your own animations, keep this in mind.
+ 
+ <img width="929" alt="image" src="https://user-images.githubusercontent.com/91590248/208074143-fdd672bc-fddb-4b84-b03a-4a400d10e14f.png">
+
 
 #### STEP 8: Stopping the installation
 Again there are 2 options:
