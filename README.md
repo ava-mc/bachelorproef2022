@@ -26,10 +26,18 @@ First of all, make sure your Arduino is set up with the right code. The current 
 
 #### STEP 2: Connect the devices
 - Connect the MIDI piano device and the Arduino to your laptop via USB. 
+   - If you are using a different MIDI piano device than us, note the following: a MIDI signal is of the following form [a,b,c]. 'a' is your starting signal, that denotes the type of MIDI signal, 'b' is the number that denotes which specific note is handled, and 'c' denotes your velocity, this is a number that denotes how hard you hit the piano key. This message 'formula' differs a bit from piano device to device. For example, we worked with 2 different keyboards, a big one and a small one. For the big one, there was only one option for 'a', namely 144. This denoted that it was a simple piano key signal. The velocity ranged from 0 to 127, where 0 signals a 'note-end' event, which is fired when someone releases a piano key. For the small keyboard this was a bit different. Namely, the 'a' signal could either be 144 of 127 (depending on whether the key was released or not), and the veolcity of a released note was 127 instead of 0. 
+   
+   I took these differences into account and made sure to keep track of this via variables, so that the same logic could be executed to handle the midi signals. You just need to keep track of which possibilities there are for your type of midi signal (the 'a') and you need to keep track of what the velocity is of a 'note-end' singal (this is your 'c'). So make sure, to test this out for your specific device first and adjust the variables 'midiType' (= an array), 'endSignal' (a number, corresponding to the end-note velocity) and 'endSignalType' (= a number corresponding to the end-note type signal, your 'a' of and end-note) accordingly in the file 'src/js/node-functions/midi-info.js'. So, make sure to update these variables to the right values for your MIDI piano device!
+   
+   <img width="495" alt="image" src="https://user-images.githubusercontent.com/91590248/208060241-eba0df41-f84a-41d2-8952-2b2837c170d3.png">
+
+   
+   
 - Connect your LED strips to your Arduino according to the previous schematic. And also connect the external power adaptor to your LED strips.
 
 #### STEP 3: Set up Ableton
-We use 3 virtual output ports on our Mac device to connect to different sounds in Ableton.
+We use 3 virtual output ports on our Mac device to connect to different sounds in Ableton. I used the Ableton Live 11 Lite free trial of 90 days.
 
 1. Create virtual output ports with the right name
    - Go to the 'Audio MIDI Setup' app on your computer
@@ -41,6 +49,10 @@ We use 3 virtual output ports on our Mac device to connect to different sounds i
    - Create 3 virtual MIDI ports by pressing the plus button. Give them the names 'Test 1', 'Test 2' and 'Test 3'. And press apply.
   
    <img width="509" alt="image" src="https://user-images.githubusercontent.com/91590248/207344305-d404336c-353d-4751-9d9f-bd31c3f9629a.png">
+   
+   - You could choose your own naming convention 'Name 1', 'Name 2', 'Name 3', but then you should make sure to change the variable 'generalPortName' in the file 'src/js/node-functions/midi-info.js' to your chosen name.
+   
+   <img width="521" alt="image" src="https://user-images.githubusercontent.com/91590248/208057023-c71d594d-3c5d-4b5f-8fb3-82fa952d7753.png">
 
     
 2. Connect the virtual output ports to sounds in Ableton
@@ -51,7 +63,17 @@ We use 3 virtual output ports on our Mac device to connect to different sounds i
 Once all the preliminary steps are handled, we can start and stop the installation functionality.
 
 #### STEP 4: Start the node server
-We made sure that our installation is controlled via a node server that serves as a central control point. The node server handles the MIDI input, controlls the right output port for the MIDI signals to produce sounds. It communicates to the Arduino via serial communication to execute the right commands. And it provides a webSocket connection to 3 browsers that are used to show additional animations on the screen. It takes care of all the timing of the installation, the communication between all the parts. It also handles the screensaver functionality
+We made sure that our installation is controlled via a node server that serves as a central control point. The node server handles the MIDI input, controlls the right output port for the MIDI signals to produce sounds. It communicates to the Arduino via serial communication to execute the right commands. And it provides a webSocket connection to 3 browsers that are used to show additional animations on the screen. It takes care of all the timing of the installation, the communication between all the parts. It also handles the screensaver functionality.
+
+If you do not have node installed yet on your device, make sure to download it from https://nodejs.org/en/download/. The version of node I worked with was v16.14.0 and v18.12.1. So if your version of node does not work, these 2 should normally always work. Normally, the package.json contains all the information of the downloaded packages, so these will be downloaded automatically when you download your node-modules in your folder via the 'npm install' command. However, should something go wrong, these are the npm packages that were used in this project:
+- express
+- http
+- socket.io
+- path
+- url
+- open
+- midi
+- fs
 
 There are 2 options to start the node server:
 1. Via the terminal:
@@ -59,7 +81,10 @@ There are 2 options to start the node server:
       - Execute the command 'node index.js'
 2. Via the provided shell script
       - To make the starting up process easier for our client, we added a shell script that starts the node server file at the right location.
+      - IMPORTANT NOTE: I wanted to make sure that the shell script could work from the desktop, independent of where the directory of the node js file waas located. So, I made sure that my shell script looks for my directory name throughout the whole computer, but stops once it finds the first match. However, this depends on the fact that this directory has a unique name!! In this case, the unique folder name where my node js file is located is called 'bachelorproef-repo'. You could change this to another name, only if you choose a folder name that is unique on your device! To change this, change this line in the shell script 'start':
       
+      <img width="446" alt="image" src="https://user-images.githubusercontent.com/91590248/208057902-2bd165b9-5b69-4cfa-9462-61084a949940.png">
+
 
 #### STEP 5: Setting up the 3 screens with socket connection
 If all goes well, the node server should have opened 3 browser screens at 'localhost:3000', where our client side logic is hosted. At this point, you should see a selection option to choose which screen should be chosen for which browser. 
@@ -72,6 +97,24 @@ If you made a mistake, you can either select a different screen that is still av
 
 #### STEP 6: Loading the installation
 Once the 3 screens have been chosen, the browsers will start loading in the right assets for the png sequences to show. Once all browsers are done loading, the installation is ready to be used.
+
+NOTE: The folder structure of your assets is very important! So, keep this same structure for your animation assets, as this is used to count the right amount of pngs in each sequence for each screen and version. And we count on this file structure to show the right image of a certain animation.
+
+<img width="395" alt="image" src="https://user-images.githubusercontent.com/91590248/208060932-efde9716-12ce-43c6-aa8d-f0f0a186125f.png">
+
+So, we have the following structure:
+ src
+   - assets
+     - pngseq
+       - version-x
+         - screen-y
+          - animation-z
+             - long
+                - file names: animation-z-long_000xx.png starting from 000000
+             - short
+                - file names: animation-z-short_000xx.png starting from 000000
+                
+ Where x and y go from 1-3, z depends on the amount of animations on a certain screen. In our case screen 1 has 4 animations, screen 2 and 3 have 3 animations. Note that each animation needs both a short and a long version! This will be to show the difference between a note that was pressed quickly or a note that is being pressed down for a longer duration.
 
 #### STEP 7: Stopping the installation
 Again there are 2 options:
