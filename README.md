@@ -59,10 +59,42 @@ We use 3 virtual output ports on our Mac device to connect to different sounds i
    - In the MIDI input option, you should be able to choose from the virtual MIDI ports we just created.
 <img width="509" alt="image" src="https://user-images.githubusercontent.com/91590248/207344785-0f14478c-d633-43ca-9e46-7a9462b49c9b.png">
 
+#### STEP 4: Configuring Firefox
+I chose to work with Firefox as a browser, as the png sequences animations with requestAnimationFrame run more smoothly here. However, there was some extra setup needed for Firefox itself. Namely, as the browser screens are used in the installation setup, we wanted to make sure that in full screen mode, nothing else is visible except for the content of the page itself. Unfortunately, there is no built-in way to do this via Firefox settings. You could install an add-on for this, but then you could not open the right type of browser screen automatically via your node server. 
+
+So, before you start the installation itself, we will make sure you have the right configurations for your Firefox browser. 
+
+What it comes down to, is that you will make your own 'userChrome.css' style sheet that can overwrite certain built in styling options of Firefox. We provided such a css style sheet in our 'firefox-configuration' folder. The contents of the file should look like this:
+
+<img width="637" alt="image" src="https://user-images.githubusercontent.com/91590248/208071459-afb62fd5-53a3-4b2a-8847-958cb9f145f8.png">
+
+Once you have this file, you should however inform Firefox of where to find it and that it should allow user defined styling. 
+
+1. The first thing you should do is go to 'about:config' in your Firefox browser. 
+This will probably first show you a warning that you are going to a page that will change the configuration of your Firefox browser and that you should proceed with caution if this is what you want to do. Just click 'Accept the risk and continue' to continue.
+
+<img width="524" alt="image" src="https://user-images.githubusercontent.com/91590248/208072060-1ecc9821-2c80-447e-bff1-5785b1fae24b.png">
+
+2. Once you are on the configuration page, you should look for the setting 'toolkit.legacyUserProfileCustomizations.styleSheets' via the search bar and set this setting to 'true' by double clicking it. 
+
+<img width="920" alt="image" src="https://user-images.githubusercontent.com/91590248/208072433-052b720c-3bb1-4f43-bc5e-89995dc24c1c.png">
+
+This setting will let Firefox know that it user defined style sheets are allowed and that it should start looking for it.
+
+3. Now we are going to place our 'userChrome.css' file with our adjusted contents in the right folder, so that Firefox can access it. Namely, we are going to put it in our Profiles folder. To access this folder in our Finder window, we need to go to 'about:support'. Here you should find the section 'Profile folder' and see a button 'Show in Finder' to go to this folder in a finder window and access its contents.
+
+<img width="845" alt="image" src="https://user-images.githubusercontent.com/91590248/208073133-862368be-691b-41a5-a856-a35d466454f4.png">
+
+4. Inside our profile folder, you now just need to make a new folder named 'chrome' and copy-paste our 'userChrome.css' file in this new folder. 
+
+<img width="728" alt="image" src="https://user-images.githubusercontent.com/91590248/208073388-aa645085-742b-47b4-80ff-88138a490c96.png">
+
+5. Once this is done, you should restart Firefox and if you followed these steps, you should now see that if you go to full screen, you only see the contents of the page. But we still made sure that if you hover to the top, the necessary navigations appear if you would need them.
+
 ### Starting the installation itself
 Once all the preliminary steps are handled, we can start and stop the installation functionality.
 
-#### STEP 4: Start the node server
+#### STEP 5: Start the node server
 We made sure that our installation is controlled via a node server that serves as a central control point. The node server handles the MIDI input, controlls the right output port for the MIDI signals to produce sounds. It communicates to the Arduino via serial communication to execute the right commands. And it provides a webSocket connection to 3 browsers that are used to show additional animations on the screen. It takes care of all the timing of the installation, the communication between all the parts. It also handles the screensaver functionality.
 
 If you do not have node installed yet on your device, make sure to download it from https://nodejs.org/en/download/. The version of node I worked with was v16.14.0 and v18.12.1. So if your version of node does not work, these 2 should normally always work. Normally, the package.json contains all the information of the downloaded packages, so these will be downloaded automatically when you download your node-modules in your folder via the 'npm install' command. However, should something go wrong, these are the npm packages that were used in this project:
@@ -86,8 +118,8 @@ There are 2 options to start the node server:
       <img width="446" alt="image" src="https://user-images.githubusercontent.com/91590248/208057902-2bd165b9-5b69-4cfa-9462-61084a949940.png">
 
 
-#### STEP 5: Setting up the 3 screens with socket connection
-If all goes well, the node server should have opened 3 browser screens at 'localhost:3000', where our client side logic is hosted. At this point, you should see a selection option to choose which screen should be chosen for which browser. 
+#### STEP 6: Setting up the 3 screens with socket connection
+If all goes well, the node server should have opened 3 browser screens at 'localhost:3000', where our client side logic is hosted. At this point, you should see a selection option to choose which screen should be chosen for which browser window. 
 To have the right set up, we provided a visual cue to see where each screen should go. So, drag your browser screens to the right external monitor screen and pick the corresponding option.
 
 If you made a mistake, you can either select a different screen that is still available, or you can press the reset button to reset the currently connected websockets.
@@ -95,7 +127,7 @@ If you made a mistake, you can either select a different screen that is still av
 <img width="876" alt="image" src="https://user-images.githubusercontent.com/91590248/207339353-514bc385-6cbe-42b8-b14e-372233db4382.png">
 
 
-#### STEP 6: Loading the installation
+#### STEP 7: Loading the installation
 Once the 3 screens have been chosen, the browsers will start loading in the right assets for the png sequences to show. Once all browsers are done loading, the installation is ready to be used.
 
 NOTE: The folder structure of your assets is very important! So, keep this same structure for your animation assets, as this is used to count the right amount of pngs in each sequence for each screen and version. And we count on this file structure to show the right image of a certain animation.
@@ -116,7 +148,7 @@ So, we have the following structure:
                 
  Where x and y go from 1-3, z depends on the amount of animations on a certain screen. In our case screen 1 has 4 animations, screen 2 and 3 have 3 animations. Note that each animation needs both a short and a long version! This will be to show the difference between a note that was pressed quickly or a note that is being pressed down for a longer duration.
 
-#### STEP 7: Stopping the installation
+#### STEP 8: Stopping the installation
 Again there are 2 options:
 - Close all browser windows and press ctrl + C in the terminal to stop your node server
 - Use the 'stop' shell script to stop the node server.
