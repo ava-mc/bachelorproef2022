@@ -108,7 +108,7 @@ So, we have the following structure:
      - pngseq
        - version-x
          - screen-y
-          - animation-z
+           - animation-z
              - long
                 - file names: animation-z-long_000xx.png starting from 000000
              - short
