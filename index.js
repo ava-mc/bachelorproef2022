@@ -481,6 +481,11 @@ const initApp = () => {
   });
 };
 
+
+// process.on('SIGINT', () => {
+//   console.log('I shut down')
+// })
+
 const init = () => {
   getPngSequences();
   setUpArduino();

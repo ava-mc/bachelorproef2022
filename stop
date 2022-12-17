@@ -1,3 +1,8 @@
 #!/bin/sh
+# pgrep node
+# ps -e|grep node
+# ps
+processid=$(pgrep -f 'node index.js')
+# kill -SIGINT $processid
 killall node
 killall firefox
