@@ -6,8 +6,8 @@
 #endif
 
 #define PIN_NEO_PIXEL  16   // Arduino pin that connects to NeoPixel
-#define NUM_PIXELS     99  // The number of LEDs (pixels) on NeoPixel
-#define SIZE 5
+#define NUM_PIXELS     107  // The number of LEDs (pixels) on NeoPixel
+#define SIZE 4
 
 
 char incomingByte = 0; // for incoming serial data
@@ -16,8 +16,8 @@ const int numberOfLedStrips = 10;
 bool longPress[numberOfLedStrips] = {false, false, false, false, false, false, false, false, false, false};
 bool startAnimation[numberOfLedStrips] = {false, false, false, false, false, false, false, false, false, false};
 unsigned long startTime[numberOfLedStrips] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-int pixelNumberStart[numberOfLedStrips] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90};
-int pixelNumberEnd[numberOfLedStrips] = {9, 19, 29, 39, 49, 59, 69, 79, 89, 99};
+int pixelNumberStart[numberOfLedStrips] = {0, 19, 26, 38, 51, 65, 69, 78, 91, 96};
+int pixelNumberEnd[numberOfLedStrips] = {18, 25, 37, 50, 64, 68, 77, 90, 95, 107};
 int pixelNumber[numberOfLedStrips];
 unsigned long startFlicker[numberOfLedStrips] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 bool flickerTimer[numberOfLedStrips] = {false, false, false, false, false, false, false, false, false, false};
@@ -78,7 +78,7 @@ void setup() {
   NeoPixel.clear();
   NeoPixel.show();
   for (int i = 0; i < numberOfLedStrips;i++) {
-    pixelNumber[i] = pixelNumberStart[i]-1;
+    pixelNumber[i] = pixelNumberStart[i];
   }
 
   //BUTTON
@@ -112,7 +112,7 @@ void loop() {
         {
           startAnimation[i] = true;
           startTime[i] = currentTime;
-          pixelNumber[i] = pixelNumberStart[i] - 1;
+          pixelNumber[i] = pixelNumberStart[i];
           brightness[i] = currentBrightness;
           Serial.print(currentBrightness);
         }
@@ -196,7 +196,7 @@ for (int i = 0; i < numberOfLedStrips;i++) {
       {
         NeoPixel.setPixelColor(pixelNumber[i], NeoPixel.Color(round(float(brightness[i])*R[i]), round(float(brightness[i])*G[i]), round(float(brightness[i])*B[i])));
       }
-      if (pixelNumber[i] >= pixelNumberStart[i] + SIZE - 1)
+      if (pixelNumber[i] >= pixelNumberStart[i] + SIZE)
       {
         NeoPixel.setPixelColor(pixelNumber[i] - SIZE, NeoPixel.Color(0, 0, 0));
       }
@@ -204,7 +204,7 @@ for (int i = 0; i < numberOfLedStrips;i++) {
       {
         startAnimation[i] = false;
         Serial.print(animationEndMessage[i]);
-        pixelNumber[i] = pixelNumberStart[i] - 1;
+        pixelNumber[i] = pixelNumberStart[i];
         startTime[i] = 0;
       }
       NeoPixel.show();
