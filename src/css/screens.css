@@ -2,6 +2,12 @@
   --transition-length: 2s;
 }
 
+@font-face {
+  font-family: 'Fussion';
+  src: url('../assets/fonts/fussion.woff') format('woff'), 
+       url('../assets/fonts/fussion.ttf')  format('truetype')
+}
+
 *,
 *::after,
 *::before {
@@ -12,33 +18,12 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* .example {
-    background-color: black;
-    border-radius: 50%;
-    width: 5rem;
-    height: 5rem;
-    transition: all .1s ease-in-out;
-}
 
-.screen1 .example {
-    background-color: blueviolet;
-}
-
-.screen2 .example {
-    background-color: green;
-}
-
-.screen3 .example {
-    background-color: red;
-} */
-
-.title {
+.loaded .title {
   color: white;
 }
 
-.screen1 body,
-.screen2 body,
-.screen3 body {
+.loaded body {
   background-color: black;
 }
 
@@ -47,24 +32,19 @@ body {
 }
 
 .screensaver span {
-  /* transition: opacity var(--transition-length) ease-in-out;
-  -moz-transition: opacity var(--transition-length) ease-in-out; */
   display: none;
-  /* opacity: 0; */
   font-size: 20rem;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Fussion, Helvetica, sans-serif;
   font-weight: bold;
   position: absolute;
 }
 
 .screensaver .opacity-up {
-  /* opacity: 1; */
   animation-name: up;
   animation-duration: var(--transition-length);
 }
 
 .screensaver .opacity-down {
-  /* opacity: 0; */
   animation-name: down;
   animation-duration: var(--transition-length);
 }
@@ -101,17 +81,12 @@ body {
 .screen-selector {
   display: flex;
   flex-direction: column;
-  /* height: 30vh; */
   align-items: center;
   justify-content: space-between;
 }
 
 .screen-choices {
   display: grid;
-  /* display: flex; */
-  /* width: 70vw; */
-  /* max-width: 30rem; */
-  /* justify-content: space-between; */
   grid-template-columns: 7rem 10.1rem 3.8rem 5.8rem 10.5rem 6rem 5rem;
   grid-template-rows: 3.5rem 2.5rem 10rem 2.5rem 1.5rem 8.5rem;
   background-image: url("../assets/styling/background.png");
@@ -126,9 +101,6 @@ body {
   background-color: white;
   border: blue 0.2rem solid;
   color: black;
-  /* padding: 1rem; */
-  /* text-align: center; */
-  /* height: 100%; */
   transition: border 0.2s ease-in-out;
   display: flex;
   justify-content: center;
@@ -142,19 +114,16 @@ body {
 .screen-choice:first-of-type {
   grid-row: 2 / span 4;
   grid-column: 2;
-  /* padding-top: 7rem; */
 }
 
 .screen-choice:nth-of-type(2) {
   grid-row: 3;
   grid-column: 5 / span 2;
-  /* padding-top: 4rem; */
 }
 
 .screen-choice:last-of-type {
   grid-row: 5 / span 2;
   grid-column: 4 / span 2;
-  /* padding-top: 4rem; */
 }
 
 .screen-chosen {
