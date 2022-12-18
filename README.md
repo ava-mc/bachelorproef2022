@@ -60,6 +60,10 @@ We use 3 virtual output ports on our Mac device to connect to different sounds i
 <img width="509" alt="image" src="https://user-images.githubusercontent.com/91590248/207344785-0f14478c-d633-43ca-9e46-7a9462b49c9b.png">
 
 #### STEP 4: Configuring Firefox
+##### Important note
+It seems tedious to need to configure your Firefox browser initially to have our installation work as smoothly as possible. And we realize this would not be a good solution if we were working with a public web application. However, our project is meant as a fixed, local installation. So, in our case, we allow for a personal configuration of a specific browser that will be used to execute our installation, as we are in the situation of just needing to have 1 locally working system that is set-up by us beforehand and configured by our preferences. This way, once the specific laptop that is set to run the node server and the necessary devices are all set-up to their needed preliminary configurations, the installation can easily be started and stopped from that point on by the client. All the preliminary configurations can be done once by us, with the goal of making the functionality of the installation hastle-free for others without coding background once the set-up has been correctly handled one time in the beginning. 
+
+##### Full screen viewing mode
 I chose to work with Firefox as a browser, as the png sequences animations with requestAnimationFrame run more smoothly here. However, there was some extra setup needed for Firefox itself. Namely, as the browser screens are used in the installation setup, we wanted to make sure that in full screen mode, nothing else is visible except for the content of the page itself. Unfortunately, there is no built-in way to do this via Firefox settings. You could install an add-on for this, but then you could not open the right type of browser screen automatically via your node server. 
 
 So, before you start the installation itself, we will make sure you have the right configurations for your Firefox browser. 
@@ -68,7 +72,7 @@ What it comes down to, is that you will make your own 'userChrome.css' style she
 
 <img width="637" alt="image" src="https://user-images.githubusercontent.com/91590248/208071459-afb62fd5-53a3-4b2a-8847-958cb9f145f8.png">
 
-Once you have this file, you should however inform Firefox of where to find it and that it should allow user defined styling. 
+Once you have this file, you should however inform Firefox of where to find it and that it should allow user defined styling.
 
 1. The first thing you should do is go to 'about:config' in your Firefox browser. 
 This will probably first show you a warning that you are going to a page that will change the configuration of your Firefox browser and that you should proceed with caution if this is what you want to do. Just click 'Accept the risk and continue' to continue.
@@ -90,6 +94,14 @@ This setting will let Firefox know that it user defined style sheets are allowed
 <img width="728" alt="image" src="https://user-images.githubusercontent.com/91590248/208073388-aa645085-742b-47b4-80ff-88138a490c96.png">
 
 5. Once this is done, you should restart Firefox and if you followed these steps, you should now see that if you go to full screen, you only see the contents of the page. But we still made sure that if you hover to the top, the necessary navigations appear if you would need them.
+
+##### Allowing scripts to close browser windows
+I wanted to make sure my installation has a nice 'clean up', by closing the browser windows once the node server stops running. However, for safety, a script is only allowed to close a window that it has opened itself. And as we make sure to make the set up process with the external monitors as smooth as possible, we still leave room to pick the right screen for the right external monitor by using links to make your choice of screen in the 3 screen setup. However, by having this click through via a link, we are no longer at the same browser window that was opened by our script and by default, we are not allowed to close this new window via our script. To circumvent this, we can change another setting in our Firefox configuration.
+
+Namely, go to 'about:config' in your firefox browser again and accept the risk to go through. Then look for the setting 'allow_scripts_to_close_windows' and set it to 'true'. Now our script should be able to close the click-through windows as well.
+
+<img width="605" alt="image" src="https://user-images.githubusercontent.com/91590248/208300835-eda2cb82-26f1-429e-bf1a-c30070e4aa73.png">
+
 
 ### Starting the installation itself
 Once all the preliminary steps are handled, we can start and stop the installation functionality.
