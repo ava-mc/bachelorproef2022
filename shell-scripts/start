@@ -1,9 +1,0 @@
-#!/bin/sh
-# dir=$(find $PWD -type d | grep "bachelorproef-repo" -m1)
-dir=$(find '/Users' -type d | grep "bachelorproef-repo" -m1)
-echo $dir
-newdir=${dir// /"\ "}
-echo $newdir
-eval cd $newdir
-node index.js
-echo "started node server"
