@@ -106,8 +106,9 @@ const screenSelectionInit = () => {
 
   //redirect when socket gets disconnected
   socket.on("disconnect", () => {
-    // redirect to new URL
-    window.location = "/";
+    // // redirect to new URL
+    // window.location = "/";
+    window.close();
   });
 
   //catch the emit to reset screen

@@ -516,7 +516,7 @@ const initApp = () => {
 process.on('SIGINT', () => {
   //stop screensaver on shut down of node server
   stopScreenSaverTimer();
-  exec(`osascript -e 'quit app "Firefox"'`);
+  // exec(`osascript -e 'quit app "Firefox"'`);
   process.exit();
 })
 
