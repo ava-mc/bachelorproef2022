@@ -119,7 +119,6 @@ const screenSelectionInit = () => {
 
 ////// PNG SEQUENCE LOGIC ////////
 // categorised list of all images
-// let imagesList = [];
 let imagesList = {};
 let totalLoadedImages = 0;
 let loadedImagesLimit = 0;
@@ -167,7 +166,7 @@ const playAllAnimations = () => {
           animationIndex = 0;
           if (version > amountOfVersions) {
             version = 1;
-            loadingNotification = true;
+            socket.emit('ready', currentScreen);
             if (loadingCounter==0){
               document.querySelector('.title').textContent = 'ready for animations';
               console.log('ready for animations');
@@ -184,6 +183,9 @@ const playAllAnimations = () => {
 const pngSequenceInit = () => {
   // get the info about the animations related to this screen
   socket.on("animation-info", async (animationInfo) => {
+    //show on the screen that loading process has started
+    document.querySelector(".title").classList.remove('hidden');
+
     for (let i = 1; i <= amountOfVersions; i++) {
       const version = `version-${i}`;
       //get the right images linked to the info about the animations of this screen
@@ -201,6 +203,14 @@ const pngSequenceInit = () => {
     }
     console.log("the animation info:", animationInfo);
   });
+
+  socket.on('fully-loaded', () => {
+    const root = document.documentElement;
+    root.classList.add('loaded');
+    loadingNotification = true;
+
+    document.querySelector(".title").classList.add('hidden');
+  })
 
   //get the info about which png sequences should be playing currently
   socket.on("pngs", (info) => {
