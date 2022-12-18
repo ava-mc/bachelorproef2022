@@ -1,5 +1,5 @@
 #!/bin/sh
-osascript -e 'quit app "Firefox"'
+# osascript -e 'quit app "Firefox"'
 dir=$(find '/Users' -type d | grep "bachelorproef-repo" -m1)
 echo $dir
 newdir=${dir// /"\ "}
