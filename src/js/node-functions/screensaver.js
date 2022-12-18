@@ -1,4 +1,4 @@
-import { writeToArduino, io } from "../../../index.js";
+import { writeToArduino, io, killAllNotes, clearNotes } from "../../../index.js";
 
 let playScreenSaver = true;
 let screenSaverTimer;
@@ -24,6 +24,10 @@ export const startScreensaverTimer = () => {
         console.log("start screensaver");
         showScreenSaver();
         playScreenSaver = false;
+
+        //to be sure, we clear all notes to avoid mistakes happening and some not signals not ending properly
+        killAllNotes();
+        clearNotes();
       }
     }
   }, 1000);
