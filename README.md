@@ -57,7 +57,8 @@ We use 3 virtual output ports on our Mac device to connect to different sounds i
     
 2. Connect the virtual output ports to sounds in Ableton
    - In the MIDI input option, you should be able to choose from the virtual MIDI ports we just created.
-<img width="509" alt="image" src="https://user-images.githubusercontent.com/91590248/207344785-0f14478c-d633-43ca-9e46-7a9462b49c9b.png">
+<img width="759" alt="image" src="https://user-images.githubusercontent.com/91590248/208517297-9f0df984-4f9a-4daa-8cab-9e19e6b89600.png">
+
 
    - To link a MIDI track to a sound, just drag a sound from the sound tab to the track. We linked the sounds and outputs in the following way:
       - IAC Driver Test 1 - Grand Piano
