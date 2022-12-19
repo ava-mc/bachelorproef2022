@@ -6,7 +6,7 @@ import * as filepath from "path";
 import { fileURLToPath } from "url";
 import open from "open";
 
-import {exec} from "child_process";
+import { exec } from "child_process";
 
 import midi from "midi";
 import {
@@ -85,7 +85,7 @@ const setupMIDIOutput = () => {
 //change the MIDI output port
 const changeOutput = () => {
   //make sure output message is stopped with current output channel
-  killAllNotes(); 
+  killAllNotes();
 
   //close the current output port
   output.closePort(outputOptions[selectedOutput]);
@@ -155,17 +155,31 @@ export const killAllNotes = () => {
   currentNotes.forEach((note) => {
     output.sendMessage([endSignalType, note.note, endSignal]);
   });
-  console.log('stop all sound');
-}
+  console.log("stop all sound");
+};
 
 export const clearNotes = () => {
   currentNotes.forEach((note) => {
-    input.sendMessage([endSignalType, note.note, endSignal]);
+    // input.sendMessage([endSignalType, note.note, endSignal]);
+    //find the corresponding animation that was linked to the note
+    const selectedAnimation = animationList.find(
+      (item) => item.note === selectedNote.note
+    );
+    if (selectedAnimation) {
+      writeToArduino(selectedAnimation.endMessage);
 
+      //let screen know that long animation should stop
+      console.log("stop long animation", selectedAnimation.animationInfo);
+      io.emit("pngs", {
+        ...selectedAnimation.animationInfo,
+        version: currentVersion,
+        long: false,
+      });
+    }
   });
-  // currentNotes.length = 0;
-  console.log('clear notes', currentNotes);
-}
+  currentNotes.length = 0;
+  console.log("clear notes", currentNotes);
+};
 
 //handle the MIDI input signals
 const handleMidiInput = (deltaTime, message) => {
@@ -177,126 +191,126 @@ const handleMidiInput = (deltaTime, message) => {
   console.log(message);
   console.log(`m: ${message} d: ${deltaTime}`);
 
- //only handle MIDI input if all screens are loaded
- if (allScreensLoaded) {
-   //send the MIDI signal to the currently opened output port to get the sound
-   output.sendMessage(message);
+  //only handle MIDI input if all screens are loaded
+  if (allScreensLoaded) {
+    //send the MIDI signal to the currently opened output port to get the sound
+    output.sendMessage(message);
 
-   //check the type of midi input, we only read note values
-   if (midiType.includes(message[0])) {
-     //check that the note is started
-     if (message[2] != endSignal) {
-       //get brightness code from the note velocity
-       const brightnessCode = getBrightnessCode(message[2]);
+    //check the type of midi input, we only read note values
+    if (midiType.includes(message[0])) {
+      //check that the note is started
+      if (message[2] != endSignal) {
+        //get brightness code from the note velocity
+        const brightnessCode = getBrightnessCode(message[2]);
 
-       //send velocity to the arduino to adjust brightness
-       writeToArduino(brightnessCode);
+        //send velocity to the arduino to adjust brightness
+        writeToArduino(brightnessCode);
 
-       // stop screensaver timer
-       stopScreenSaverTimer();
+        // stop screensaver timer
+        stopScreenSaverTimer();
 
-       //add the notes to the list of current notes
-       currentNotes.push({
-         type: message[0],
-         note: message[1],
-         start: message[2],
-       });
+        //add the notes to the list of current notes
+        currentNotes.push({
+          type: message[0],
+          note: message[1],
+          start: message[2],
+        });
 
-       // check if there are still animations available to link to the new note
-       if (availableAnimationIndices.length === 0) {
-       } else {
-         //get random animation
-         const animationIndex =
-           availableAnimationIndices[
-             getRandomInt(0, availableAnimationIndices.length - 1)
-           ];
+        // check if there are still animations available to link to the new note
+        if (availableAnimationIndices.length === 0) {
+        } else {
+          //get random animation
+          const animationIndex =
+            availableAnimationIndices[
+              getRandomInt(0, availableAnimationIndices.length - 1)
+            ];
 
-         //remove the chosen animationIndex from the available animation indices
-         availableAnimationIndices.splice(
-           availableAnimationIndices.indexOf(animationIndex),
-           1
-         );
+          //remove the chosen animationIndex from the available animation indices
+          availableAnimationIndices.splice(
+            availableAnimationIndices.indexOf(animationIndex),
+            1
+          );
 
-         //adjust the values of the chosen animation to link it to the new note
-         const chosenAnimation = animationList[animationIndex];
-         chosenAnimation.note = message[1];
+          //adjust the values of the chosen animation to link it to the new note
+          const chosenAnimation = animationList[animationIndex];
+          chosenAnimation.note = message[1];
 
-         //set the brightness of this animation
-         let opacity = message[2] / velocityScale / 2 + 0.5;
-         if (opacity >= 0.85) {
-           opacity = 1;
-         }
-         chosenAnimation.animationInfo.brightness = opacity;
+          //set the brightness of this animation
+          let opacity = message[2] / velocityScale / 2 + 0.5;
+          if (opacity >= 0.85) {
+            opacity = 1;
+          }
+          chosenAnimation.animationInfo.brightness = opacity;
 
-         //send the corresponding message for this animation to arduinno
-         writeToArduino(chosenAnimation.startMessage);
+          //send the corresponding message for this animation to arduinno
+          writeToArduino(chosenAnimation.startMessage);
 
-         //start the timer to see whether the note is pressed long
-         chosenAnimation.timer = setInterval(() => {
-           chosenAnimation.counter++;
-           if (chosenAnimation.ended === true) {
-             writeToArduino(chosenAnimation.longMessage);
-             chosenAnimation.ended = false;
-           }
-         }, 100);
-       }
-     }
-     //otherwise, we get the stop signal for a note
-     else {
-       //check if note was in the list
-       console.log(currentNotes);
-       const selectedNote = currentNotes.find(
-         (item) => item.note === message[1]
-       );
-       console.log(selectedNote);
+          //start the timer to see whether the note is pressed long
+          chosenAnimation.timer = setInterval(() => {
+            chosenAnimation.counter++;
+            if (chosenAnimation.ended === true) {
+              writeToArduino(chosenAnimation.longMessage);
+              chosenAnimation.ended = false;
+            }
+          }, 100);
+        }
+      }
+      //otherwise, we get the stop signal for a note
+      else {
+        //check if note was in the list
+        console.log(currentNotes);
+        const selectedNote = currentNotes.find(
+          (item) => item.note === message[1]
+        );
+        console.log(selectedNote);
 
-       if (selectedNote) {
-         //remove the note from the list of currently played notes
-         currentNotes.splice(currentNotes.indexOf(selectedNote), 1);
-         console.log(currentNotes);
+        if (selectedNote) {
+          //remove the note from the list of currently played notes
+          currentNotes.splice(currentNotes.indexOf(selectedNote), 1);
+          console.log(currentNotes);
 
-         //find the corresponding animation that was linked to the note
-         const selectedAnimation = animationList.find(
-           (item) => item.note === selectedNote.note
-         );
-         //if we find this animation, we reset it
-         if (selectedAnimation) {
-           selectedAnimation.ended = false;
+          //find the corresponding animation that was linked to the note
+          const selectedAnimation = animationList.find(
+            (item) => item.note === selectedNote.note
+          );
+          //if we find this animation, we reset it
+          if (selectedAnimation) {
+            selectedAnimation.ended = false;
 
-           //reset the timer for the long played note animation
-           selectedAnimation.counter = 0;
-           clearInterval(selectedAnimation.timer);
+            //reset the timer for the long played note animation
+            selectedAnimation.counter = 0;
+            clearInterval(selectedAnimation.timer);
 
-           //unlink the animation from the note
-           selectedAnimation.note = null;
+            //unlink the animation from the note
+            selectedAnimation.note = null;
 
-           //add animation index back to list of available animationIndices
-           const index = animationList.indexOf(selectedAnimation);
-           availableAnimationIndices.push(index);
-           writeToArduino(selectedAnimation.endMessage);
+            //add animation index back to list of available animationIndices
+            const index = animationList.indexOf(selectedAnimation);
+            availableAnimationIndices.push(index);
+            writeToArduino(selectedAnimation.endMessage);
 
-           //let screen know that long animation should stop
-           console.log("stop long animation", selectedAnimation.animationInfo);
-           io.emit("pngs", {
-             ...selectedAnimation.animationInfo,
-             version: currentVersion,
-             long: false,
-           });
-           // }
-         }
-       }
+            //let screen know that long animation should stop
+            console.log("stop long animation", selectedAnimation.animationInfo);
+            io.emit("pngs", {
+              ...selectedAnimation.animationInfo,
+              version: currentVersion,
+              long: false,
+            });
+            // }
+          }
+        }
 
-       //start screensaver timer if no notes are currently being played anymore
-       if (currentNotes.length === 0) {
-         startScreensaverTimer();
-       }
-     }
-   }
- }
+        //start screensaver timer if no notes are currently being played anymore
+        if (currentNotes.length === 0) {
+          startScreensaverTimer();
+        }
+      }
+    }
+  }
 };
 
 /////// WEBSOCKETS ///////
-let loadedScreens =  [];
+let loadedScreens = [];
 let allScreensLoaded = false;
 const websocketInit = () => {
   //keep track of which screens are chosen
@@ -353,23 +367,19 @@ const websocketInit = () => {
             (item) => item.name.charAt(item.name.length - 1) == chosenScreen
           );
         }
-        socket.emit(
-          "animation-info",
-          info
-        );
+        socket.emit("animation-info", info);
 
         //let other clients know that a new screen choice was made and which screens ar currently already chosen and thus unavailable
         io.emit("screen chosen", chosenScreens);
         if (chosenScreens.length == 3) {
-
           //let browser know about the screensaverTime once all screens are selected
           io.emit("screensaverTime", screensaverTime);
         }
       });
 
-      socket.on('ready', (screenNumber) => {
+      socket.on("ready", (screenNumber) => {
         //check if screen is already loaded
-        const previous = loadedScreens.find(item => item === screenNumber)
+        const previous = loadedScreens.find((item) => item === screenNumber);
         if (!previous) {
           loadedScreens.push(screenNumber);
           if (loadedScreens.length === 3) {
@@ -380,7 +390,7 @@ const websocketInit = () => {
             startScreensaverTimer();
           }
         }
-      })
+      });
 
       socket.on("reset", () => {
         //redirect all sockets to the main site, this way they all disconnect and are handled in the disconnect event
@@ -512,13 +522,12 @@ const initApp = () => {
   });
 };
 
-
-process.on('SIGINT', () => {
+process.on("SIGINT", () => {
   //stop screensaver on shut down of node server
   stopScreenSaverTimer();
   // exec(`osascript -e 'quit app "Firefox"'`);
   process.exit();
-})
+});
 
 const init = () => {
   getPngSequences();
