@@ -59,6 +59,12 @@ We use 3 virtual output ports on our Mac device to connect to different sounds i
    - In the MIDI input option, you should be able to choose from the virtual MIDI ports we just created.
 <img width="509" alt="image" src="https://user-images.githubusercontent.com/91590248/207344785-0f14478c-d633-43ca-9e46-7a9462b49c9b.png">
 
+   - To link a MIDI track to a sound, just drag a sound from the sound tab to the track. We linked the sounds and outputs in the following way:
+      - IAC Driver Test 1 - Grand Piano
+      - IAC Driver Test 2 - MPE Sine Press
+      - IAC Driver Test 3 - Organ Angry
+
+
 #### STEP 4: Configuring Firefox
 ##### Important note
 It seems tedious to need to configure your Firefox browser initially to have our installation work as smoothly as possible. And we realize this would not be a good solution if we were working with a public web application. However, our project is meant as a fixed, local installation. So, in our case, we allow for a personal configuration of a specific browser that will be used to execute our installation, as we are in the situation of just needing to have 1 locally working system that is set-up by us beforehand and configured by our preferences. This way, once the specific laptop that is set to run the node server and the necessary devices are all set-up to their needed preliminary configurations, the installation can easily be started and stopped from that point on by the client. All the preliminary configurations can be done once by us, with the goal of making the functionality of the installation hastle-free for others without coding background once the set-up has been correctly handled one time in the beginning. 
