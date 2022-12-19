@@ -167,10 +167,11 @@ const playAllAnimations = () => {
           animationIndex = 0;
           if (version > amountOfVersions) {
             version = 1;
-            socket.emit('ready', currentScreen);
-            if (loadingCounter==0){
-              document.querySelector('.title').textContent = 'ready for animations';
-              console.log('ready for animations');
+            socket.emit("ready", currentScreen);
+            if (loadingCounter == 0) {
+              document.querySelector(".title").textContent =
+                "ready for animations";
+              console.log("ready for animations");
             }
             loadingCounter++;
           }
@@ -178,14 +179,14 @@ const playAllAnimations = () => {
       }
     }
   }
-}
+};
 
 //bundling socket events related to png sequences logic
 const pngSequenceInit = () => {
   // get the info about the animations related to this screen
   socket.on("animation-info", async (animationInfo) => {
     //show on the screen that loading process has started
-    document.querySelector(".title").classList.remove('hidden');
+    document.querySelector(".title").classList.remove("hidden");
 
     for (let i = 1; i <= amountOfVersions; i++) {
       const version = `version-${i}`;
@@ -205,13 +206,13 @@ const pngSequenceInit = () => {
     console.log("the animation info:", animationInfo);
   });
 
-  socket.on('fully-loaded', () => {
+  socket.on("fully-loaded", () => {
     const root = document.documentElement;
-    root.classList.add('loaded');
+    root.classList.add("loaded");
     loadingNotification = true;
 
-    document.querySelector(".title").classList.add('hidden');
-  })
+    document.querySelector(".title").classList.add("hidden");
+  });
 
   //get the info about which png sequences should be playing currently
   socket.on("pngs", (info) => {
@@ -293,31 +294,31 @@ const loop = (timestamp) => {
     previousTime = currentTime - (deltaTime % interval);
     // if (totalLoadedImages === loadedImagesLimit) {
     // if (imagesList.length > 0) {
-      playAllAnimations();
-      if (loadingNotification){
-    for (let j = 0; j < playInfo.length; j++) {
-      const playItem = playInfo[j];
-      const length = playItem.images.length;
-      //only show current image
-      const image = playItem.images[playItem.index];
-      showImage(image, playItem.brightness);
-      playItem.index++;
+    playAllAnimations();
+    if (loadingNotification) {
+      for (let j = 0; j < playInfo.length; j++) {
+        const playItem = playInfo[j];
+        const length = playItem.images.length;
+        //only show current image
+        const image = playItem.images[playItem.index];
+        showImage(image, playItem.brightness);
+        playItem.index++;
 
-      //when we reached the final png in the sequence
-      if (playItem.index >= length) {
-        //if it's the long state, we repeat the animation
-        if (playItem.long) {
-          playItem.index = 0;
-        }
-        //if it's the short animations, we remove the animation from the playInfo list once it is done
-        if (playItem.short) {
-          //remove the previous play info for this animation, if there was info about it already
-          playInfo.splice(playInfo.indexOf(playItem), 1);
+        //when we reached the final png in the sequence
+        if (playItem.index >= length) {
+          //if it's the long state, we repeat the animation
+          if (playItem.long) {
+            playItem.index = 0;
+          }
+          //if it's the short animations, we remove the animation from the playInfo list once it is done
+          if (playItem.short) {
+            //remove the previous play info for this animation, if there was info about it already
+            playInfo.splice(playInfo.indexOf(playItem), 1);
+          }
         }
       }
     }
   }
-}
   // }
   // }
 
@@ -341,7 +342,7 @@ const screenSaverInfoInit = () => {
     if (currentScreen) {
       const $screensaverSpan = document
         .querySelector(`.screen${currentScreen}`)
-        .querySelector(`span:nth-of-type(${currentScreen})`);
+        .querySelector(`span:nth-of-type(${4 - currentScreen})`);
       $screensaverSpan.classList.remove("opacity-up");
       $screensaverSpan.classList.remove("opacity-down");
     }
@@ -352,7 +353,7 @@ const screenSaverInfoInit = () => {
     if (currentScreen) {
       const $screensaverSpan = document
         .querySelector(`.screen${currentScreen}`)
-        .querySelector(`span:nth-of-type(${currentScreen})`);
+        .querySelector(`span:nth-of-type(${4 - currentScreen})`);
       if (type == "up") {
         $screensaverSpan.classList.add("opacity-up");
         $screensaverSpan.classList.remove("opacity-down");
@@ -380,9 +381,9 @@ const init = () => {
   });
 
   const $reset = document.getElementById("reset");
-  $reset.addEventListener('click', ()=> {
+  $reset.addEventListener("click", () => {
     socket.emit("reset");
-  })
+  });
 };
 
 init();
