@@ -1,9 +1,9 @@
 export const socket = io.connect();
-import { initScreen1 } from "./screen1.js";
-import { initScreen2 } from "./screen2.js";
-import { initScreen3 } from "./screen3.js";
+// import { initScreen1 } from "./screen1.js";
+// import { initScreen2 } from "./screen2.js";
+// import { initScreen3 } from "./screen3.js";
 import { loadImages } from "./browser-functions/image-loading.js";
-import { amountOfVersions } from "./lib.js";
+import { amountOfScreens, amountOfVersions } from "./lib.js";
 
 /////// SCREEN SELECTION LOGIC ////////
 let currentScreen;
@@ -54,19 +54,25 @@ const screenSelectionInit = () => {
       screenSelector.classList.add(`hidden`);
       console.log(currentScreen);
       const root = document.documentElement;
-      if (currentScreen == 1) {
-        console.log("Im screen 1");
-        console.log(root);
-        root.classList.add("screen1");
-        initScreen1();
-      } else if (currentScreen == 2) {
-        console.log("Im screen 2");
-        root.classList.add("screen2");
-        initScreen2();
-      } else if (currentScreen == 3) {
-        console.log("Im screen 3");
-        root.classList.add("screen3");
-        initScreen3();
+      // if (currentScreen == 1) {
+      //   console.log("Im screen 1");
+      //   console.log(root);
+      //   root.classList.add("screen1");
+      //   initScreen1();
+      // } else if (currentScreen == 2) {
+      //   console.log("Im screen 2");
+      //   root.classList.add("screen2");
+      //   initScreen2();
+      // } else if (currentScreen == 3) {
+      //   console.log("Im screen 3");
+      //   root.classList.add("screen3");
+      //   initScreen3();
+      // }
+      for (let i = 1; i <= amountOfScreens; i++) {
+        if (currentScreen == i) {
+          console.log(`Im screen ${i}`);
+          root.classList.add(`screen${i}`);
+        }
       }
     } else {
       //reset classes
