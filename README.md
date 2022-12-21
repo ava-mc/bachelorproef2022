@@ -182,3 +182,32 @@ Again there are 2 options:
 - Use the 'stop' shell script to stop the node server.
 - Thanks to the configuration of Firefox, the 3 browser windows should close automatically, when the websocket connection gets disrupted, when the node server shuts down.
 
+## Structure of our repo
+- arduino folder: this contains the files for the Arduino. The final version is found in 'multitasking/multitasking.ino'. The other ones are earlier versions.
+- firefox-configuration: this folder contains the userChrome.css file that is used to add custom styling to Firefox.
+- tests: this contains test files that were used during our process to, for example, try out reading MIDI signals and try out separating the png sequence logic to make the animations play as smoothly as possible.
+- src:
+  - assets: contains the assets for this project
+     - fonts: fonts used in this project
+     - pngseq: contains all the png assets for the animations png sequences, in the previously mentioned structure.
+     - styling: the background image used for the screen selection menu.
+  - css: the style sheet for this project
+  - js: All the javascript files.
+     - screens.js: The general file for the client-side logic.
+     - lib.js: general library file with some basic functions.
+     - browser functions: modules for separated logic that are used on the client side
+       - image-loading.js: functions to load the right pngs on the client side.
+     - node-functions: modules for separated logic that are used by the node server
+        - animation-info.js: global variables with the animation info
+        - file-counting.js: functions that count the number of assets of the png sequences in a structured way.
+        - midi-info.js: file with global variables with the info to read the MIDI signals of the connected device in the correct way.
+        - screensaver.js: contains the logic of the screensaver functionality
+- README.md: this file, with the set-up guide and repo context.
+- index.html: the html file for the browser.
+- index.js: the central node server
+- start: the starting shell file (can be placed on your desktop)
+- stop: the stopping shell file (can be placed on your desktop)
+- package-lock.json and package.json: info about npm packages
+  
+     
+    
