@@ -25,7 +25,7 @@ export const startScreensaverTimer = () => {
         showScreenSaver();
         playScreenSaver = false;
 
-        //to be sure, we clear all notes to avoid mistakes happening and some not signals not ending properly
+        //to be sure, we clear all notes
         killAllNotes();
         clearNotes();
       }
