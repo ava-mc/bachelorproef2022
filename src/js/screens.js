@@ -51,20 +51,6 @@ const screenSelectionInit = () => {
       screenSelector.classList.add(`hidden`);
       console.log(currentScreen);
       const root = document.documentElement;
-      // if (currentScreen == 1) {
-      //   console.log("Im screen 1");
-      //   console.log(root);
-      //   root.classList.add("screen1");
-      //   initScreen1();
-      // } else if (currentScreen == 2) {
-      //   console.log("Im screen 2");
-      //   root.classList.add("screen2");
-      //   initScreen2();
-      // } else if (currentScreen == 3) {
-      //   console.log("Im screen 3");
-      //   root.classList.add("screen3");
-      //   initScreen3();
-      // }
       for (let i = 1; i <= amountOfScreens; i++) {
         if (currentScreen == i) {
           console.log(`Im screen ${i}`);
@@ -109,8 +95,6 @@ const screenSelectionInit = () => {
 
   //redirect when socket gets disconnected
   socket.on("disconnect", () => {
-    // // redirect to new URL
-    // window.location = "/";
     window.close();
   });
 
@@ -148,6 +132,7 @@ let opacity = 0;
 let loadingNotification = false;
 let loadingCounter = 0;
 
+//go through all pngs for this screen and paint on canvas, to use as loading for slow first-paint
 const playAllAnimations = () => {
   const image =
     imagesList?.[`version-${version}`]?.[animationIndex]?.[duration][pngIndex];
@@ -262,8 +247,7 @@ const pngSequenceInit = () => {
   });
 };
 
-// show an image
-// const scalingOpacityFactor = 1.2;
+// show an image with certain opacity
 const showImage = (img, opacity) => {
   context.save();
   context.globalAlpha = opacity;
@@ -295,8 +279,6 @@ const loop = (timestamp) => {
   if (deltaTime >= interval) {
     clearCanvas();
     previousTime = currentTime - (deltaTime % interval);
-    // if (totalLoadedImages === loadedImagesLimit) {
-    // if (imagesList.length > 0) {
     playAllAnimations();
     if (loadingNotification) {
       for (let j = 0; j < playInfo.length; j++) {
@@ -322,8 +304,6 @@ const loop = (timestamp) => {
       }
     }
   }
-  // }
-  // }
 
   window.requestAnimationFrame(loop);
 };
@@ -331,6 +311,12 @@ const loop = (timestamp) => {
 ///// SCREENSAVER LOGIC ///////
 //bundled logic for screensaver related socket events
 const screenSaverInfoInit = () => {
+  //select element that holds right word to show on screen during screensaver
+  //(since screen 1 needs span nr 3, and vice-versa, we calculate with ${4 - number of the current screen})
+   const $screensaverSpan = document
+     .querySelector(`.screen${currentScreen}`)
+     .querySelector(`span:nth-of-type(${4 - currentScreen})`);
+
   //get info about timing of screensaver
   socket.on("screensaverTime", (time) => {
     // set css variable for transition time of screensaver text
@@ -343,9 +329,6 @@ const screenSaverInfoInit = () => {
   //when screensaver stops, text should be gone
   socket.on("screensaverStop", () => {
     if (currentScreen) {
-      const $screensaverSpan = document
-        .querySelector(`.screen${currentScreen}`)
-        .querySelector(`span:nth-of-type(${4 - currentScreen})`);
       $screensaverSpan.classList.remove("opacity-up");
       $screensaverSpan.classList.remove("opacity-down");
     }
@@ -354,9 +337,6 @@ const screenSaverInfoInit = () => {
   //show right opacity animation in time with LED animation
   socket.on("opacity-change", (type) => {
     if (currentScreen) {
-      const $screensaverSpan = document
-        .querySelector(`.screen${currentScreen}`)
-        .querySelector(`span:nth-of-type(${4 - currentScreen})`);
       if (type == "up") {
         $screensaverSpan.classList.add("opacity-up");
         $screensaverSpan.classList.remove("opacity-down");
@@ -373,16 +353,19 @@ const init = () => {
   screenSaverInfoInit();
   pngSequenceInit();
 
+  //setup canvas
   const $canvas = document.getElementById("canvas");
   $canvas.width = window.innerWidth;
   $canvas.height = window.innerHeight;
   context = $canvas.getContext("2d");
 
+  //scale canvas with window size
   window.addEventListener("resize", () => {
     $canvas.width = window.innerWidth;
     $canvas.height = window.innerHeight;
   });
 
+  //add reset functionality for screen choice menu
   const $reset = document.getElementById("reset");
   $reset.addEventListener("click", () => {
     socket.emit("reset");
