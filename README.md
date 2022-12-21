@@ -1,46 +1,50 @@
 # Bachelor project: The Light Piano
 
 ## A quick overview
-This project provides the technical functionality of a 'Light Piano' interactive installation. We use a MIDI piano keyboard as input to create animations with LED light strips and show animations on 3 external screens. There is also a button that changes the sound by changing between different MIDI output ports The set-up looks something like this:
+This project provides the technical functionality of a 'Light Piano' interactive installation. We use a MIDI piano keyboard as input to create animations with LED light strips and show animations on 3 external screens. There is also a button that changes the sound, by changing between different MIDI output ports, and changes the corresponsing visual style on the screens. The set-up looks something like this:
 
 <img width="509" alt="image" src="https://user-images.githubusercontent.com/91590248/207347048-04a713d9-364e-4b02-8e0a-492c1e7b5aa7.png">
-It is a construction that consists of LED strips placed between 3 external monitors. This is all connected to a laptop that communicates with an Arduino, connected to the button and the LED strips, and with a MIDI piano keyboard.
+It is a construction that consists of LED strips placed between 3 external monitors. This is all connected to a laptop, runnning a node js server, that has serial communication with a MIDI piano keyboard and with an Arduino, which is connected to the button and the LED strips.
 
 ## SETUP GUIDE
 ### Necessities
-- Arduino
+- Arduino Micro
 - Button
 - MIDI piano keyboard with serial connection
 - node js
 - 3 external screens to connect via HDMI
-- Individually addressable LED strips (WS2812B neopixels)
-- External adaptor to power the LED strips.
-- Ableton software
+- Individually addressable LED strips (WS2812B neopixels) (5V)
+- External adaptor to power the LED strips. (we use model JYH05010000B, Input: 100-240V ~ 50/60Hz 2.0A, output 5V - 10A).
+- Capacitor (1000μF - 25V)
+- Ableton software (free trial is enough)
+- Apple laptop
 
 ### Prelimenary setup
-These steps are meant to be done once to provide all the components needed for the installation
+These first 4 steps are meant to be done once to provide all the components needed for the installation.
 
 #### STEP 1: Set up your Arduino
 First of all, make sure your Arduino is set up with the right code. The current file can be found in the folder 'arduino/multitasking', with the name 'multitasking.ino'. Make sure to upload this code to your Arduino. Make sure to build the right circuit for your Arduino according to our circuit schematic. 
 ![arduino-circuit-LED-strip-with-button-01](https://user-images.githubusercontent.com/91590248/207330567-e441b594-3c2d-406e-b266-aac4bd991075.png)
 
+NOTE: It is important to look at the polarity or your power adaptor, to know how you should connect the pins inside your female adaptor plug. This can differ from adaptor to adaptor, so check the backside of your adaptor for a figure that looks something like this:
+
+<img width="209" alt="image" src="https://user-images.githubusercontent.com/91590248/208898702-a76ab780-bc89-40c8-a2a4-031ea3a8e6a3.png">
+
 #### STEP 2: Connect the devices
 - Connect the MIDI piano device and the Arduino to your laptop via USB. 
    - If you are using a different MIDI piano device than us, note the following: a MIDI signal is of the following form [a,b,c]. 'a' is your starting signal, that denotes the type of MIDI signal, 'b' is the number that denotes which specific note is handled, and 'c' denotes your velocity, this is a number that denotes how hard you hit the piano key. This message 'formula' differs a bit from piano device to device. For example, we worked with 2 different keyboards, a big one and a small one. For the big one, there was only one option for 'a', namely 144. This denoted that it was a simple piano key signal. The velocity ranged from 0 to 127, where 0 signals a 'note-end' event, which is fired when someone releases a piano key. For the small keyboard this was a bit different. Namely, the 'a' signal could either be 144 of 127 (depending on whether the key was released or not), and the veolcity of a released note was 127 instead of 0. 
    
-   I took these differences into account and made sure to keep track of this via variables, so that the same logic could be executed to handle the midi signals. You just need to keep track of which possibilities there are for your type of midi signal (the 'a') and you need to keep track of what the velocity is of a 'note-end' singal (this is your 'c'). So make sure, to test this out for your specific device first and adjust the variables 'midiType' (= an array), 'endSignal' (a number, corresponding to the end-note velocity) and 'endSignalType' (= a number corresponding to the end-note type signal, your 'a' of and end-note) accordingly in the file 'src/js/node-functions/midi-info.js'. So, make sure to update these variables to the right values for your MIDI piano device!
+   I took these differences into account and made sure to keep track of this via variables, so that the same logic could be executed to handle the midi signals. You just need to keep track of which possibilities there are for your type of midi signal (the 'a') and you need to keep track of what the velocity is of a 'note-end' singal (this is your 'c'). So make sure to test this out for your specific device first and adjust the variables 'midiType' (= an array), 'endSignal' (a number, corresponding to the end-note velocity) and 'endSignalType' (= a number corresponding to the end-note type signal, your 'a' of an end-note signal) accordingly in the file 'src/js/node-functions/midi-info.js'. So, make sure to update these variables to the right values for your MIDI piano device!
    
    <img width="495" alt="image" src="https://user-images.githubusercontent.com/91590248/208060241-eba0df41-f84a-41d2-8952-2b2837c170d3.png">
 
-   
-   
 - Connect your LED strips to your Arduino according to the previous schematic. And also connect the external power adaptor to your LED strips.
 
 #### STEP 3: Set up Ableton
 We use 3 virtual output ports on our Mac device to connect to different sounds in Ableton. I used the Ableton Live 11 Lite free trial of 90 days.
 
-1. Create virtual output ports with the right name
-   - Go to the 'Audio MIDI Setup' app on your computer
+1. Create virtual MIDI output ports with the right name. 
+   - Go to the 'Audio MIDI Setup' app on your computer (this is a built in app on macbook).
    - Go to Window > Show MIDI Studio
    - You should see the following screen:
    
@@ -90,7 +94,7 @@ This will probably first show you a warning that you are going to a page that wi
 
 <img width="920" alt="image" src="https://user-images.githubusercontent.com/91590248/208072433-052b720c-3bb1-4f43-bc5e-89995dc24c1c.png">
 
-This setting will let Firefox know that it user defined style sheets are allowed and that it should start looking for it.
+This setting will let Firefox know that user defined style sheets are allowed and that it should start looking for it.
 
 3. Now we are going to place our 'userChrome.css' file with our adjusted contents in the right folder, so that Firefox can access it. Namely, we are going to put it in our Profiles folder. To access this folder in our Finder window, we need to go to 'about:support'. Here you should find the section 'Profile folder' and see a button 'Show in Finder' to go to this folder in a finder window and access its contents.
 
@@ -116,15 +120,15 @@ Once all the preliminary steps are handled, we can start and stop the installati
 #### STEP 5: Start the node server
 We made sure that our installation is controlled via a node server that serves as a central control point. The node server handles the MIDI input, controlls the right output port for the MIDI signals to produce sounds. It communicates to the Arduino via serial communication to execute the right commands. And it provides a webSocket connection to 3 browsers that are used to show additional animations on the screen. It takes care of all the timing of the installation, the communication between all the parts. It also handles the screensaver functionality.
 
-If you do not have node installed yet on your device, make sure to download it from https://nodejs.org/en/download/. The version of node I worked with was v16.14.0 and v18.12.1. So if your version of node does not work, these 2 should normally always work. Normally, the package.json contains all the information of the downloaded packages, so these will be downloaded automatically when you download your node-modules in your folder via the 'npm install' command. However, should something go wrong, these are the npm packages that were used in this project:
-- express
-- http
-- socket.io
-- path
-- url
-- open
-- midi
-- fs
+If you do not have node installed yet on your device, make sure to download it from https://nodejs.org/en/download/. The versions of node I worked with were v16.14.0 and v18.12.1. So, if your version of node does not work, these 2 should normally always work. Normally, the package.json contains all the information of the downloaded packages, so these will be downloaded automatically when you download your node-modules in your folder via the 'npm install' command. However, should something go wrong, these are the npm packages that were used in this project:
+- [express](https://www.npmjs.com/package/express)
+- [http](https://www.npmjs.com/package/http)
+- [socket.io](https://www.npmjs.com/package/socket.io)
+- [path](https://www.npmjs.com/package/path)
+- [url](https://www.npmjs.com/package/url)
+- [open](https://www.npmjs.com/package/open)
+- [midi](https://www.npmjs.com/package/midi)
+- [fs](https://www.npmjs.com/package/fs)
 
 There are 2 options to start the node server:
 1. Via the terminal:
@@ -132,7 +136,7 @@ There are 2 options to start the node server:
       - Execute the command 'node index.js'
 2. Via the provided shell script
       - To make the starting up process easier for our client, we added a shell script that starts the node server file at the right location.
-      - IMPORTANT NOTE: I wanted to make sure that the shell script could work from the desktop, independent of where the directory of the node js file waas located. So, I made sure that my shell script looks for my directory name throughout the whole computer, but stops once it finds the first match. However, this depends on the fact that this directory has a unique name!! In this case, the unique folder name where my node js file is located is called 'bachelorproef-repo'. You could change this to another name, only if you choose a folder name that is unique on your device! To change this, change this line in the shell script 'start':
+      - IMPORTANT NOTE: I wanted to make sure that the shell script could work from the desktop, independent of where the directory of the node js file was located. So, I made sure that my shell script looks for my directory name throughout the whole computer, but stops once it finds the first match. However, this depends on the fact that this directory has a unique name!! In this case, the unique folder name where my node js file is located is called 'bachelorproef-repo'. You could change this to another name, only if you choose a folder name that is unique on your device! To change this, change this line in the shell script 'start':
       
       <img width="446" alt="image" src="https://user-images.githubusercontent.com/91590248/208057902-2bd165b9-5b69-4cfa-9462-61084a949940.png">
 
@@ -176,3 +180,5 @@ So, we have the following structure:
 Again there are 2 options:
 - Close all browser windows and press ctrl + C in the terminal to stop your node server
 - Use the 'stop' shell script to stop the node server.
+- Thanks to the configuration of Firefox, the 3 browser windows should close automatically, when the websocket connection gets disrupted, when the node server shuts down.
+
