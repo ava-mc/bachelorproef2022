@@ -311,11 +311,6 @@ const loop = (timestamp) => {
 ///// SCREENSAVER LOGIC ///////
 //bundled logic for screensaver related socket events
 const screenSaverInfoInit = () => {
-  //select element that holds right word to show on screen during screensaver
-  //(since screen 1 needs span nr 3, and vice-versa, we calculate with ${4 - number of the current screen})
-   const $screensaverSpan = document
-     .querySelector(`.screen${currentScreen}`)
-     .querySelector(`span:nth-of-type(${4 - currentScreen})`);
 
   //get info about timing of screensaver
   socket.on("screensaverTime", (time) => {
@@ -329,6 +324,11 @@ const screenSaverInfoInit = () => {
   //when screensaver stops, text should be gone
   socket.on("screensaverStop", () => {
     if (currentScreen) {
+      //select element that holds right word to show on screen during screensaver
+      //(since screen 1 needs span nr 3, and vice-versa, we calculate with ${4 - number of the current screen})
+      const $screensaverSpan = document
+        .querySelector(`.screen${currentScreen}`)
+        .querySelector(`span:nth-of-type(${4 - currentScreen})`);
       $screensaverSpan.classList.remove("opacity-up");
       $screensaverSpan.classList.remove("opacity-down");
     }
@@ -337,6 +337,11 @@ const screenSaverInfoInit = () => {
   //show right opacity animation in time with LED animation
   socket.on("opacity-change", (type) => {
     if (currentScreen) {
+      //select element that holds right word to show on screen during screensaver
+      //(since screen 1 needs span nr 3, and vice-versa, we calculate with ${4 - number of the current screen})
+      const $screensaverSpan = document
+        .querySelector(`.screen${currentScreen}`)
+        .querySelector(`span:nth-of-type(${4 - currentScreen})`);
       if (type == "up") {
         $screensaverSpan.classList.add("opacity-up");
         $screensaverSpan.classList.remove("opacity-down");
