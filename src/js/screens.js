@@ -1,7 +1,4 @@
 export const socket = io.connect();
-// import { initScreen1 } from "./screen1.js";
-// import { initScreen2 } from "./screen2.js";
-// import { initScreen3 } from "./screen3.js";
 import { loadImages } from "./browser-functions/image-loading.js";
 import { amountOfScreens, amountOfVersions } from "./lib.js";
 

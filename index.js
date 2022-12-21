@@ -5,7 +5,6 @@ import serialport from "serialport";
 import * as filepath from "path";
 import { fileURLToPath } from "url";
 import open from "open";
-
 import { exec } from "child_process";
 
 import midi from "midi";
@@ -40,7 +39,7 @@ export const io = new Server(server);
 const serialPort = serialport.SerialPort;
 
 //////// PNG SEQUENCES  //////////
-//count the amount of png sequences and number of pngs per sequence for each screen
+//count the amount of png sequences and number of pngs per sequence for each screen and version
 const screenSequences = {};
 const getPngSequences = async () => {
   for (let i = 1; i <= amountOfVersions; i++) {
@@ -62,7 +61,6 @@ let output;
 let selectedOutput = 0;
 let outputOptions;
 const currentNotes = [];
-
 let currentVersion = versionRelations[0].version;
 
 //MIDI OUTPUT
@@ -135,6 +133,8 @@ const setupMIDIInput = () => {
 
   //open the right input port
   input.openPort(inputPort);
+
+  console.log('input openend: ', input.getPortName(inputPort));
 };
 
 //get the right MIDI input port for the piano
@@ -150,6 +150,7 @@ const getMIDIInputPort = (input) => {
   }
 };
 
+// stop the sound of all currently played notes
 export const killAllNotes = () => {
   //make sure output message is stopped with current output channel
   currentNotes.forEach((note) => {
@@ -158,28 +159,57 @@ export const killAllNotes = () => {
   console.log("stop all sound");
 };
 
+//stop the animations of all currently playing notes and remove all notes
 export const clearNotes = () => {
-  currentNotes.forEach((note) => {
-    // input.sendMessage([endSignalType, note.note, endSignal]);
-    //find the corresponding animation that was linked to the note
-    const selectedAnimation = animationList.find(
-      (item) => item.note === selectedNote.note
-    );
-    if (selectedAnimation) {
-      writeToArduino(selectedAnimation.endMessage);
-
-      //let screen know that long animation should stop
-      console.log("stop long animation", selectedAnimation.animationInfo);
-      io.emit("pngs", {
-        ...selectedAnimation.animationInfo,
-        version: currentVersion,
-        long: false,
-      });
-    }
+  currentNotes.forEach((selectedNote) => {
+    handleNoteStop(selectedNote);
   });
+  //clear the list of notes
   currentNotes.length = 0;
   console.log("clear notes", currentNotes);
+
+  //for safety, stop screen and arduino animations
+  animationList.forEach(animation => {
+    writeToArduino(animation.endMessage);
+    io.emit("pngs", {
+      ...animation.animationInfo,
+      version: currentVersion,
+      long: false,
+    });
+  })
 };
+
+//function that takes care of a note stop signal of a certain note
+const handleNoteStop = (selectedNote) => {
+  //find the corresponding animation that was linked to the note
+  const selectedAnimation = animationList.find(
+    (item) => item.note === selectedNote.note
+  );
+  //if we find this animation, we reset it
+  if (selectedAnimation) {
+    selectedAnimation.ended = false;
+
+    //reset the timer for the long played note animation
+    selectedAnimation.counter = 0;
+    clearInterval(selectedAnimation.timer);
+
+    //unlink the animation from the note
+    selectedAnimation.note = null;
+
+    //add animation index back to list of available animationIndices
+    const index = animationList.indexOf(selectedAnimation);
+    availableAnimationIndices.push(index);
+    writeToArduino(selectedAnimation.endMessage);
+
+    //let screen know that long animation should stop
+    console.log("stop long animation", selectedAnimation.animationInfo);
+    io.emit("pngs", {
+      ...selectedAnimation.animationInfo,
+      version: currentVersion,
+      long: false,
+    });
+  }
+}
 
 //handle the MIDI input signals
 const handleMidiInput = (deltaTime, message) => {
@@ -269,35 +299,8 @@ const handleMidiInput = (deltaTime, message) => {
           currentNotes.splice(currentNotes.indexOf(selectedNote), 1);
           console.log(currentNotes);
 
-          //find the corresponding animation that was linked to the note
-          const selectedAnimation = animationList.find(
-            (item) => item.note === selectedNote.note
-          );
-          //if we find this animation, we reset it
-          if (selectedAnimation) {
-            selectedAnimation.ended = false;
-
-            //reset the timer for the long played note animation
-            selectedAnimation.counter = 0;
-            clearInterval(selectedAnimation.timer);
-
-            //unlink the animation from the note
-            selectedAnimation.note = null;
-
-            //add animation index back to list of available animationIndices
-            const index = animationList.indexOf(selectedAnimation);
-            availableAnimationIndices.push(index);
-            writeToArduino(selectedAnimation.endMessage);
-
-            //let screen know that long animation should stop
-            console.log("stop long animation", selectedAnimation.animationInfo);
-            io.emit("pngs", {
-              ...selectedAnimation.animationInfo,
-              version: currentVersion,
-              long: false,
-            });
-            // }
-          }
+          //handle the necessary signals for stopping a note
+          handleNoteStop(selectedNote);
         }
 
         //start screensaver timer if no notes are currently being played anymore
