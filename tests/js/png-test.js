@@ -1,6 +1,6 @@
 // import { animationList } from "./node-functions/animation-info.js";
-import { amountOfVersions } from "./lib.js";
-import { loadImages } from "./browser-functions/image-loading.js";
+import { amountOfVersions } from "../../src/js/lib.js";
+import { loadImages } from "../../src/js/browser-functions/image-loading.js";
 
 const $canvas = document.getElementById("canvas");
 $canvas.width = window.innerWidth;
